@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+service BatlShm {
+    // Shared memory operations
+    rpc CreateBuffer(CreateBufferRequest) returns (CreateBufferReply) {}
+    rpc GetBuffer(GetBufferRequest) returns (GetBufferReply) {}
+    rpc ReleaseBuffer(ReleaseBufferRequest) returns (StandardReply) {}
+
+    // Intended for publishers
+    rpc RegisterTopic(RegisterTopicRequest) returns (StandardReply) {}
+    rpc Publish(PublishRequest) returns (StandardReply) {}
+
+    // Intended for subscribers
+    //rpc GetTopics(Empty) returns (TopicList) {}
+    rpc GenerateID(Empty) returns (GenerateIDReply) {}
+    rpc Subscribe(SubscribeRequest) returns (StandardReply) {}
+    rpc Pull(PullRequest) returns (PullReply) {}
+}
+
+//TODO: use google.protobuf.Empty
+message Empty {}
+
+message StandardReply {
+    int32 result = 1;
+}
+
+message CreateBufferRequest {
+    int32 size = 1;
+}
+
+message CreateBufferReply {
+    string name = 1;
+    int32 result = 2;
+}
+
+message GetBufferRequest {
+    string name = 1;
+}
+
+message GetBufferReply {
+    int32 result = 1;
+    uint32 size = 2;
+}
+
+message ReleaseBufferRequest {
+    string name = 1;
+}
+
+message RegisterTopicRequest {
+    string name = 1;
+}
+
+message PublishRequest {
+    string topic_name = 1;
+    string buffer_name = 2;
+    uint64 timestamp = 3;
+}
+
+//message TopicList {
+//    repeated string topics = 1;
+//}
+
+message GenerateIDReply {
+    uint32 id = 1;
+}
+
+message SubscribeRequest {
+    string topic_name = 1;
+    uint32 id = 2;
+}
+
+message PullRequest {
+    string topic_name = 1;
+    uint32 id = 2;
+}
+
+message PullReply {
+    int32 result = 1;
+    string buffer_name = 2;
+    uint64 timestamp = 3;
+}
