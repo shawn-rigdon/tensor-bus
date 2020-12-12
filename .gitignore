@@ -1,0 +1,56 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Models and annotations
+*.pth
+*.pb
+*.csv
+
+# python
+__pycache__
+*.pyc
+
+# images and videos
+*.jpg
+*.jpeg
+*.png
+*.mp4
+*.mov
+
+# editor related files
+*.swp
+*~
+
+# build and run paths
+build/
+bin/
