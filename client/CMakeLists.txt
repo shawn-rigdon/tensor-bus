@@ -11,8 +11,8 @@ set(LIB_LIST
     rt)
 
 set(SRC_LIST shm_client.cpp ${GRPC_SRC} ${PB_SRC})
-set(LIB_FLAGS "-L${GRPC_LIB_DIR}")
-include_directories(${GENERATED_DIR} ${GRPC_INCLUDE_DIR})
+set(LIB_FLAGS "-L${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+include_directories(${GENERATED_DIR} ${GRPC_INCLUDE_DIR} ${PROTO_SRC})
 #add_library(shm_client ${SRC_LIST})
 add_library(shm_client SHARED ${SRC_LIST})
 set_property(TARGET shm_client PROPERTY LINK_FLAGS ${LIB_FLAGS})

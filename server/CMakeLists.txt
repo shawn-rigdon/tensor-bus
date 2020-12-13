@@ -1,8 +1,8 @@
 project(shm_server)
 
-set(GRPC_BIN_DIR "${GRPC_INSTALL_DIR}/bin")
-set(PROTOC "${GRPC_BIN_DIR}/protoc")
-set(CPP_PLUGIN "${GRPC_BIN_DIR}/grpc_cpp_plugin")
+#set(GRPC_BIN_DIR "${GRPC_INSTALL_DIR}/bin")
+set(PROTOC "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/protoc")
+set(CPP_PLUGIN "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/grpc_cpp_plugin")
 
 # generated names
 set(PB_SRC "${GENERATED_DIR}/batlshm.pb.cc")
@@ -44,10 +44,10 @@ add_custom_command(
 #    DEPENDS ${GENERATED_PYTHON})
 
 set(SRC_LIST shm_server.cpp topic_manager.cpp topic_queue.cpp shm_manager.cpp)
-set(LD_FLAGS "-L ${GRPC_LIB_DIR}")
+set(LD_FLAGS "-L${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 set(LD_LIBS "-lprotobuf -lgrpc++ -lgrpc -lrt")
 
-include_directories(${GENERATED_DIR} ${GRPC_INCLUDE_DIR})
+include_directories(${GENERATED_DIR} ${GRPC_INCLUDE_DIR} ${PROTO_SRC})
 add_executable(shm_server ${SRC_LIST} ${PB_SRC} ${GRPC_SRC})
 set_target_properties(shm_server PROPERTIES
     LINK_FLAGS ${LD_FLAGS}

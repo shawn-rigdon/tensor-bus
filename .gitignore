@@ -54,3 +54,4 @@ __pycache__
 # build and run paths
 build/
 bin/
+lib/
