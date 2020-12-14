@@ -13,14 +13,15 @@ Topic::Topic(string name, unsigned int maxQueueSize) :
 {
 }
 
-bool Topic::subscribe(SubscriberID id) {
+// If the subscriber is not already subscribed to the topic
+// the given subscriber name is set to the oldest position in the queue.
+// This subscriber method allows multiple subscribers of the same name.
+bool Topic::subscribe(string& subscriber_name) {
     unique_lock<mutex> lock(mMutex);
-    for (auto it = mIndexMap.begin(); it != mIndexMap.end(); it++) {
-        if (it->first == id)
-            return false; // already subscribed
-    }
+    auto it = mIndexMap.find(subscriber_name);
+    if (it == mIndexMap.end())
+        mIndexMap[subscriber_name] = 0;
 
-    mIndexMap[id] = 0;
     return true;
 }
 
@@ -51,15 +52,15 @@ void Topic::post(TopicQueueItem& item) {
 // this should set item according to the subscriber id's index, increment the index,
 // and pop any elements that have been seen by all subscribers. If the current index
 // is greater than the number of queue elements, block until data is available.
-bool Topic::pull(SubscriberID id, TopicQueueItem& item) {
+bool Topic::pull(string& subscriber_name, TopicQueueItem& item) {
     unique_lock<mutex> lock(mMutex);
-    auto it = mIndexMap.find(id);
+    auto it = mIndexMap.find(subscriber_name);
     if (it == mIndexMap.end()) {
         //spdlog::error("Subscriber ID {} is not assigned to topic {}", id, mName);
         return false;
     }
 
-    // If the current subscriber has process all available queue messages,
+    // If the current subscriber has processed all available queue messages,
     // it should wait for other subscribers to free up old messages and/or
     // the publisher to post new data
     while (it->second >= mQueue.size()) { // it->second retrieves current subscriber index
@@ -71,9 +72,9 @@ bool Topic::pull(SubscriberID id, TopicQueueItem& item) {
     return true;
 }
 
-bool Topic::decIdx(SubscriberID id) {
+bool Topic::decIdx(string& subscriber_name) {
     unique_lock<mutex> lock(mMutex);
-    auto it = mIndexMap.find(id);
+    auto it = mIndexMap.find(subscriber_name);
     if (it == mIndexMap.end()) {
         //spdlog::error("Subscriber ID {} is not assigned to topic {}", id, mName);
         return false;

@@ -26,3 +26,4 @@ set(PROTO_SRC "${GRPC_INSTALL_DIR}/third_party/protobuf/src")
 
 add_subdirectory(server)
 add_subdirectory(client)
+add_subdirectory(tests)

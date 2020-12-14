@@ -3,12 +3,7 @@
 TopicManager* TopicManager::instance = nullptr;
 
 TopicManager::TopicManager() {
-    nextID = 0;
     mActiveTopics.reserve(10);
-}
-
-SubscriberID TopicManager::createID() {
-    return nextID++;
 }
 
 bool TopicManager::addTopic(string name) {
@@ -28,28 +23,28 @@ bool TopicManager::publish(string topic_name, TopicQueueItem& item) {
     return true;
 }
 
-bool TopicManager::subscribe(string topic_name, SubscriberID id) {
+bool TopicManager::subscribe(string topic_name, string subscriber_name) {
     auto it = mActiveTopics.find(topic_name);
     if (it == mActiveTopics.end())
         return false; // topic doesn't exist
 
-    return it->second->subscribe(id);
+    return it->second->subscribe(subscriber_name);
 }
 
-bool TopicManager::pull(string topic_name, SubscriberID id, TopicQueueItem& item) {
+bool TopicManager::pull(string topic_name,  string subscriber_name, TopicQueueItem& item) {
     auto it = mActiveTopics.find(topic_name);
     if (it == mActiveTopics.end())
         return false; // topic doesn't exist
 
-    return it->second->pull(id, item);
+    return it->second->pull(subscriber_name, item);
 }
 
-bool TopicManager::cancelPull(string topic_name, SubscriberID id) {
+bool TopicManager::cancelPull(string topic_name,  string subscriber_name) {
     auto it = mActiveTopics.find(topic_name);
     if (it == mActiveTopics.end())
         return false; // topic doesn't exist
 
-    return it->second->decIdx(id);
+    return it->second->decIdx(subscriber_name);
 }
 
 bool TopicManager::clearOldPosts(string topic_name) {

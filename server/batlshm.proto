@@ -12,7 +12,6 @@ service BatlShm {
 
     // Intended for subscribers
     //rpc GetTopics(Empty) returns (TopicList) {}
-    rpc GenerateID(Empty) returns (GenerateIDReply) {}
     rpc Subscribe(SubscribeRequest) returns (StandardReply) {}
     rpc Pull(PullRequest) returns (PullReply) {}
 }
@@ -60,18 +59,14 @@ message PublishRequest {
 //    repeated string topics = 1;
 //}
 
-message GenerateIDReply {
-    uint32 id = 1;
-}
-
 message SubscribeRequest {
     string topic_name = 1;
-    uint32 id = 2;
+    string subscriber_name = 2;
 }
 
 message PullRequest {
     string topic_name = 1;
-    uint32 id = 2;
+    string subscriber_name = 2;
 }
 
 message PullReply {

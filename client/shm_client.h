@@ -28,9 +28,8 @@ public:
     int32_t ReleaseBuffer(const string& name);
     int32_t RegisterTopic(const string& name);
     int32_t Publish(const string& topic_name, const string& buffer_name, uint64_t timestamp);
-    int32_t GenerateID(uint32_t& id);
-    int32_t Subscribe(const string& topic_name, const uint32_t id);
-    int32_t Pull(const string& topic_name, const uint32_t id, 
+    int32_t Subscribe(const string& topic_name, const string& subscriber_name);
+    int32_t Pull(const string& topic_name, const string& subscriber_name,
             string& buffer_name, uint64_t timestamp);
 };
 

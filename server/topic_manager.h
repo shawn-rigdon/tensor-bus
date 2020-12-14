@@ -13,7 +13,6 @@ class TopicManager {
 private:
     static TopicManager* instance;
     unordered_map< string, shared_ptr<Topic> > mActiveTopics;
-    SubscriberID nextID;
 
     TopicManager();
 
@@ -24,12 +23,11 @@ public:
         return instance;
     }
 
-    SubscriberID createID();
     bool addTopic(string name);
     bool publish(string topic_name, TopicQueueItem& item);
-    bool subscribe(string topic_name, SubscriberID id);
-    bool pull(string topic_name, SubscriberID id, TopicQueueItem& item);
-    bool cancelPull(string topic_name, SubscriberID);
+    bool subscribe(string topic_name, string subscriber_name);
+    bool pull(string topic_name,  string subscriber_name, TopicQueueItem& item);
+    bool cancelPull(string topic_name, string subscriber_name);
     bool clearOldPosts(string topic_name);
 
     ~TopicManager() {delete instance;}

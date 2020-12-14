@@ -11,8 +11,6 @@ using namespace std::chrono;
 using namespace std::chrono_literals;
 using namespace std;
 
-typedef unsigned int SubscriberID;
-
 template <typename Data>
 class Queue {
 private:
@@ -116,7 +114,7 @@ class Topic {
 private:
     string mName;
     unsigned int mMaxQueueSize;
-    unordered_map<SubscriberID, unsigned int> mIndexMap;
+    unordered_map<string, unsigned int> mIndexMap;
     Queue<TopicQueueItem> mQueue;
     mutable mutex mMutex;
     condition_variable mCV;
@@ -126,8 +124,8 @@ public:
     virtual ~Topic() {}
 
     void post(TopicQueueItem& item);
-    bool subscribe(SubscriberID id);
-    bool pull(SubscriberID id, TopicQueueItem& item);
-    bool decIdx(SubscriberID id);
+    bool subscribe(string& subsriber_name);
+    bool pull(string& subsriber_name, TopicQueueItem& item);
+    bool decIdx(string& subsriber_name);
     unsigned int clearProcessedPosts();
 };

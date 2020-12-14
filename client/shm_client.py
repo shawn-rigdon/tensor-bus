@@ -48,17 +48,12 @@ class BatlShmClient:
         response = self.stub.Publish(request)
         return response.result
 
-    def GenerateID(self):
-        request = batlshm_pb2.Empty()
-        response = self.stub.GenerateID(request)
-        return response.id
-
-    def Subscribe(self, topic_name, ID):
-        request = batlshm_pb2.SubscribeRequest(topic_name=topic_name, id=ID)
+    def Subscribe(self, topic_name, subscriber_name):
+        request = batlshm_pb2.SubscribeRequest(topic_name=topic_name, subscriber_name=subscriber_name)
         response = self.stub.Subscribe(request)
         return response.result
 
-    def Pull(self, topic_name, ID):
-        request = batlshm_pb2.PullRequest(topic_name=topic_name, id=ID)
+    def Pull(self, topic_name, subscriber_name):
+        request = batlshm_pb2.PullRequest(topic_name=topic_name, subscriber_name=subscriber_name)
         response = self.stub.Pull(request)
         return (response.buffer_name, response.timestamp, response.result)

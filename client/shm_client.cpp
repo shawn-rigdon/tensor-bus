@@ -45,8 +45,6 @@ int32_t BatlShmClient::GetBuffer(const string& name, int32_t& size) {
     ClientContext context;
     request.set_name(name);
     Status status = mStub->GetBuffer(&context, request, &reply);
-    if (status.ok())
-        std::cout << "Status OK" << std::endl;
     if (status.ok() && reply.result() == 0)
         size = reply.size();
     else {
@@ -101,27 +99,12 @@ int32_t BatlShmClient::Publish(const string& topic_name,
     return -1;
 }
 
-int32_t BatlShmClient::GenerateID(uint32_t& id) {
-    Empty request;
-    GenerateIDReply reply;
-    ClientContext context;
-    Status status = mStub->GenerateID(&context, request, &reply);
-    if (status.ok()) {
-        id = reply.id();
-        return 0;
-    }
-
-//    spdlog::warn("GenerateID() fails with error code: {}, error message: {}",
-//            status.error_code(), status.error_message());
-    return -1;
-}
-
-int32_t BatlShmClient::Subscribe(const string& topic_name, const uint32_t id) {
+int32_t BatlShmClient::Subscribe(const string& topic_name, const string& subscriber_name) {
     SubscribeRequest request;
     StandardReply reply;
     ClientContext context;
     request.set_topic_name(topic_name);
-    request.set_id(id);
+    request.set_subscriber_name(subscriber_name);
     Status status = mStub->Subscribe(&context, request, &reply);
     if (status.ok())
         return reply.result();
@@ -131,13 +114,13 @@ int32_t BatlShmClient::Subscribe(const string& topic_name, const uint32_t id) {
     return -1;
 }
 
-int32_t BatlShmClient::Pull(const string& topic_name, const uint32_t id, 
+int32_t BatlShmClient::Pull(const string& topic_name, const string& subscriber_name,
         string& buffer_name, uint64_t timestamp) {
     PullRequest request;
     PullReply reply;
     ClientContext context;
     request.set_topic_name(topic_name);
-    request.set_id(id);
+    request.set_subscriber_name(subscriber_name);
     Status status = mStub->Pull(&context, request, &reply);
     if (status.ok()) {
         if (reply.result() == 0) {

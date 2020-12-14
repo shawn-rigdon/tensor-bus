@@ -99,17 +99,10 @@ public:
 //    Status GetTopics(ServerContext* context, Empty* e, TopicList* tl) override {
 //    }
 
-    Status GenerateID(ServerContext* context, const Empty* e,
-            GenerateIDReply* reply) override {
-        reply->set_id( (uint32_t)TopicManager::getInstance()->createID() );
-        return Status::OK;
-    }
-
     Status Subscribe(ServerContext* context, const SubscribeRequest* request,
             StandardReply* reply) override {
         reply->set_result(0);
-        SubscriberID id = (SubscriberID)request->id();
-        if (!TopicManager::getInstance()->subscribe(request->topic_name(), id))
+        if (!TopicManager::getInstance()->subscribe(request->topic_name(), request->subscriber_name()))
             reply->set_result(-1);
 
         return Status::OK;
@@ -118,16 +111,16 @@ public:
     Status Pull(ServerContext* context, const PullRequest* request,
             PullReply* reply) override {
         string topic = request->topic_name();
-        SubscriberID id = (SubscriberID)request->id();
+        string subscriber = request->subscriber_name();
         TopicQueueItem item;
         reply->set_result(-1);
-        bool gotItem = TopicManager::getInstance()->pull(topic, id, item);
+        bool gotItem = TopicManager::getInstance()->pull(topic, subscriber, item);
         if (!gotItem)
             return Status::CANCELLED;
 
         unique_lock<mutex> lock(mMutex);
         if (context->IsCancelled()) {
-            TopicManager::getInstance()->cancelPull(topic, id);
+            TopicManager::getInstance()->cancelPull(topic, subscriber);
             return Status::CANCELLED;
         }
 

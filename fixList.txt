@@ -1,6 +1,7 @@
 1. Persistent subscriber IDs
 	When a process is restarted it's given a new id, when it should be given the previous id associated with the task.
 	This should probably be based on client name instead of ID.
+DONE
 
 2. Memory leak
 	When publisher runs without subscriber, memory never gets released
