@@ -8,20 +8,30 @@ const int32_t msg_size = sizeof(int);
 const int msg_data = 5;
 
 void publisher(BatlShmClient* client) {
-        // register topic
-        client->RegisterTopic(topic);
-    
-        // allocate buffer
-        std::string buffer_name;
-        client->CreateBuffer(buffer_name, msg_size);
+    // register topic
+    client->RegisterTopic(topic);
 
-        // map buffer and write data
-        int* pBuf = (int*)MapBuffer(buffer_name, msg_size);
-        *pBuf = msg_data;
-        UnmapBuffer(pBuf, msg_size);
+    // wait for subscribers
+    while (true) {
+        unsigned int num_subscribers;
+        client->GetSubscriberCount(topic, num_subscribers);
+        if (num_subscribers > 0)
+            break;
 
-        //publish (timestamp set to 0 for test)
-        client->Publish(topic, buffer_name, 0);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    // allocate buffer
+    std::string buffer_name;
+    client->CreateBuffer(buffer_name, msg_size);
+
+    // map buffer and write data
+    int* pBuf = (int*)MapBuffer(buffer_name, msg_size);
+    *pBuf = msg_data;
+    UnmapBuffer(pBuf, msg_size);
+
+    //publish (timestamp set to 0 for test)
+    client->Publish(topic, buffer_name, 0);
 }
 
 void subscriber(BatlShmClient* client) {
@@ -31,10 +41,15 @@ void subscriber(BatlShmClient* client) {
     // pull msg
     std::string buffer_name;
     uint64_t ts;
-    client->Pull(topic, subscriber_name, buffer_name, ts);
+    int32_t result = client->Pull(topic, subscriber_name, buffer_name, ts);
+    if (result < 0) {
+        std::cerr << topic << " is not an active topic" << std::endl;
+        return;
+    }
+    std::cout << "name: " << buffer_name << std::endl;
 
     int32_t size;
-    int32_t result = client->GetBuffer(buffer_name, size);
+    result = client->GetBuffer(buffer_name, size);
 
     if (result < 0) {
         std::cerr << "GetBuffer Failed" << std::endl;

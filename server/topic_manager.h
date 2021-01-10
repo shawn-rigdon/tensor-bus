@@ -29,6 +29,7 @@ public:
     bool pull(string topic_name,  string subscriber_name, TopicQueueItem& item);
     bool cancelPull(string topic_name, string subscriber_name);
     bool clearOldPosts(string topic_name);
+    unsigned int getSubscriberCount(string topic_name);
 
     ~TopicManager() {delete instance;}
 };

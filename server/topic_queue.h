@@ -123,6 +123,8 @@ public:
     Topic(string name, unsigned int maxQueueSize=0);
     virtual ~Topic() {}
 
+    unsigned int size() {return mIndexMap.size();}
+
     void post(TopicQueueItem& item);
     bool subscribe(string& subsriber_name);
     bool pull(string& subsriber_name, TopicQueueItem& item);

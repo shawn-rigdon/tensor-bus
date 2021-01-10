@@ -91,7 +91,19 @@ public:
         TopicQueueItem msg(request->buffer_name(), request->timestamp());
         if (TopicManager::getInstance()->publish(request->topic_name(), msg))
             reply->set_result(0);
+        //TODO: This should probably be handled by a client object. We don't want this function
+        //      to assume a buffer needs to get released.
+        else
+            ShmManager::getInstance()->release(buffer_name);
 
+        return Status::OK;
+    }
+
+    Status GetSubscriberCount(ServerContext* context, const SubscriberCountRequest* request,
+            SubscriberCountReply* reply) override {
+        unsigned int sub_count = TopicManager::getInstance()->getSubscriberCount(request->topic_name());
+        reply->set_num_subs(sub_count);
+        reply->set_result(0);
         return Status::OK;
     }
 

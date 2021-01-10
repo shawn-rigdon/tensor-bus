@@ -99,6 +99,18 @@ int32_t BatlShmClient::Publish(const string& topic_name,
     return -1;
 }
 
+int32_t BatlShmClient::GetSubscriberCount(const string& topic_name, unsigned int& num_subs) {
+    SubscriberCountRequest request;
+    SubscriberCountReply reply;
+    ClientContext context;
+    request.set_topic_name(topic_name);
+    Status status = mStub->GetSubscriberCount(&context, request, &reply);
+    if (status.ok() && reply.result() == 0)
+        num_subs = reply.num_subs();
+
+    return reply.result();
+}
+
 int32_t BatlShmClient::Subscribe(const string& topic_name, const string& subscriber_name) {
     SubscribeRequest request;
     StandardReply reply;

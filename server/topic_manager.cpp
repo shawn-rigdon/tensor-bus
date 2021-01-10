@@ -16,11 +16,19 @@ bool TopicManager::addTopic(string name) {
 
 bool TopicManager::publish(string topic_name, TopicQueueItem& item) {
     auto it = mActiveTopics.find(topic_name);
-    if (it == mActiveTopics.end())
-        return false; // topic has not been registered
+    if (it == mActiveTopics.end() || it->second->size() <= 0)
+        return false; // topic has not been registered or has no subscribers
 
     it->second->post(item);
     return true;
+}
+
+unsigned int TopicManager::getSubscriberCount(string topic_name) {
+    auto it = mActiveTopics.find(topic_name);
+    if (it != mActiveTopics.end())
+        return it->second->size();
+    else
+        return 0;
 }
 
 bool TopicManager::subscribe(string topic_name, string subscriber_name) {

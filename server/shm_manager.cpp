@@ -10,7 +10,8 @@ ShmManager* ShmManager::instance = nullptr;
 ShmBuffer::ShmBuffer(string name) :
     mName(name),
     mAllocated(false),
-    mSize(0)
+    mSize(0),
+    mRefCount(0)
 {
 }
 
