@@ -17,7 +17,7 @@ void publisher(BatlShmClient* client) {
 
         // map buffer and write data
         int* pBuf = (int*)MapBuffer(buffer_name, msg_size);
-        *pBuf = 5;
+        *pBuf = msg_data;
         UnmapBuffer(pBuf, msg_size);
 
         //publish (timestamp set to 0 for test)
