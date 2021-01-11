@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rbatlshm.proto\"\x07\n\x05\x45mpty\"\x1f\n\rStandardReply\x12\x0e\n\x06result\x18\x01 \x01(\x05\"#\n\x13\x43reateBufferRequest\x12\x0c\n\x04size\x18\x01 \x01(\x05\"1\n\x11\x43reateBufferReply\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06result\x18\x02 \x01(\x05\" \n\x10GetBufferRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\".\n\x0eGetBufferReply\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x0c\n\x04size\x18\x02 \x01(\r\"$\n\x14ReleaseBufferRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"$\n\x14RegisterTopicRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"L\n\x0ePublishRequest\x12\x12\n\ntopic_name\x18\x01 \x01(\t\x12\x13\n\x0b\x62uffer_name\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\x04\"\x1d\n\x0fGenerateIDReply\x12\n\n\x02id\x18\x01 \x01(\r\"2\n\x10SubscribeRequest\x12\x12\n\ntopic_name\x18\x01 \x01(\t\x12\n\n\x02id\x18\x02 \x01(\r\"-\n\x0bPullRequest\x12\x12\n\ntopic_name\x18\x01 \x01(\t\x12\n\n\x02id\x18\x02 \x01(\r\"C\n\tPullReply\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x13\n\x0b\x62uffer_name\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\x04\x32\x9a\x03\n\x07\x42\x61tlShm\x12:\n\x0c\x43reateBuffer\x12\x14.CreateBufferRequest\x1a\x12.CreateBufferReply\"\x00\x12\x31\n\tGetBuffer\x12\x11.GetBufferRequest\x1a\x0f.GetBufferReply\"\x00\x12\x38\n\rReleaseBuffer\x12\x15.ReleaseBufferRequest\x1a\x0e.StandardReply\"\x00\x12\x38\n\rRegisterTopic\x12\x15.RegisterTopicRequest\x1a\x0e.StandardReply\"\x00\x12,\n\x07Publish\x12\x0f.PublishRequest\x1a\x0e.StandardReply\"\x00\x12(\n\nGenerateID\x12\x06.Empty\x1a\x10.GenerateIDReply\"\x00\x12\x30\n\tSubscribe\x12\x11.SubscribeRequest\x1a\x0e.StandardReply\"\x00\x12\"\n\x04Pull\x12\x0c.PullRequest\x1a\n.PullReply\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\rbatlshm.proto\"\x07\n\x05\x45mpty\"\x1f\n\rStandardReply\x12\x0e\n\x06result\x18\x01 \x01(\x05\"#\n\x13\x43reateBufferRequest\x12\x0c\n\x04size\x18\x01 \x01(\x05\"1\n\x11\x43reateBufferReply\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06result\x18\x02 \x01(\x05\" \n\x10GetBufferRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\".\n\x0eGetBufferReply\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x0c\n\x04size\x18\x02 \x01(\r\"$\n\x14ReleaseBufferRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"$\n\x14RegisterTopicRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"L\n\x0ePublishRequest\x12\x12\n\ntopic_name\x18\x01 \x01(\t\x12\x13\n\x0b\x62uffer_name\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\x04\",\n\x16SubscriberCountRequest\x12\x12\n\ntopic_name\x18\x01 \x01(\t\"8\n\x14SubscriberCountReply\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x10\n\x08num_subs\x18\x02 \x01(\r\"?\n\x10SubscribeRequest\x12\x12\n\ntopic_name\x18\x01 \x01(\t\x12\x17\n\x0fsubscriber_name\x18\x02 \x01(\t\":\n\x0bPullRequest\x12\x12\n\ntopic_name\x18\x01 \x01(\t\x12\x17\n\x0fsubscriber_name\x18\x02 \x01(\t\"C\n\tPullReply\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x13\n\x0b\x62uffer_name\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\x04\x32\xb8\x03\n\x07\x42\x61tlShm\x12:\n\x0c\x43reateBuffer\x12\x14.CreateBufferRequest\x1a\x12.CreateBufferReply\"\x00\x12\x31\n\tGetBuffer\x12\x11.GetBufferRequest\x1a\x0f.GetBufferReply\"\x00\x12\x38\n\rReleaseBuffer\x12\x15.ReleaseBufferRequest\x1a\x0e.StandardReply\"\x00\x12\x38\n\rRegisterTopic\x12\x15.RegisterTopicRequest\x1a\x0e.StandardReply\"\x00\x12,\n\x07Publish\x12\x0f.PublishRequest\x1a\x0e.StandardReply\"\x00\x12\x46\n\x12GetSubscriberCount\x12\x17.SubscriberCountRequest\x1a\x15.SubscriberCountReply\"\x00\x12\x30\n\tSubscribe\x12\x11.SubscribeRequest\x1a\x0e.StandardReply\"\x00\x12\"\n\x04Pull\x12\x0c.PullRequest\x1a\n.PullReply\"\x00\x62\x06proto3'
 )
 
 
@@ -334,18 +334,18 @@ _PUBLISHREQUEST = _descriptor.Descriptor(
 )
 
 
-_GENERATEIDREPLY = _descriptor.Descriptor(
-  name='GenerateIDReply',
-  full_name='GenerateIDReply',
+_SUBSCRIBERCOUNTREQUEST = _descriptor.Descriptor(
+  name='SubscriberCountRequest',
+  full_name='SubscriberCountRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='id', full_name='GenerateIDReply.id', index=0,
-      number=1, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
+      name='topic_name', full_name='SubscriberCountRequest.topic_name', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -362,7 +362,46 @@ _GENERATEIDREPLY = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=383,
-  serialized_end=412,
+  serialized_end=427,
+)
+
+
+_SUBSCRIBERCOUNTREPLY = _descriptor.Descriptor(
+  name='SubscriberCountReply',
+  full_name='SubscriberCountReply',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='result', full_name='SubscriberCountReply.result', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='num_subs', full_name='SubscriberCountReply.num_subs', index=1,
+      number=2, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=429,
+  serialized_end=485,
 )
 
 
@@ -382,9 +421,9 @@ _SUBSCRIBEREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='id', full_name='SubscribeRequest.id', index=1,
-      number=2, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
+      name='subscriber_name', full_name='SubscribeRequest.subscriber_name', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -400,8 +439,8 @@ _SUBSCRIBEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=414,
-  serialized_end=464,
+  serialized_start=487,
+  serialized_end=550,
 )
 
 
@@ -421,9 +460,9 @@ _PULLREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='id', full_name='PullRequest.id', index=1,
-      number=2, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
+      name='subscriber_name', full_name='PullRequest.subscriber_name', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -439,8 +478,8 @@ _PULLREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=466,
-  serialized_end=511,
+  serialized_start=552,
+  serialized_end=610,
 )
 
 
@@ -485,8 +524,8 @@ _PULLREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=513,
-  serialized_end=580,
+  serialized_start=612,
+  serialized_end=679,
 )
 
 DESCRIPTOR.message_types_by_name['Empty'] = _EMPTY
@@ -498,7 +537,8 @@ DESCRIPTOR.message_types_by_name['GetBufferReply'] = _GETBUFFERREPLY
 DESCRIPTOR.message_types_by_name['ReleaseBufferRequest'] = _RELEASEBUFFERREQUEST
 DESCRIPTOR.message_types_by_name['RegisterTopicRequest'] = _REGISTERTOPICREQUEST
 DESCRIPTOR.message_types_by_name['PublishRequest'] = _PUBLISHREQUEST
-DESCRIPTOR.message_types_by_name['GenerateIDReply'] = _GENERATEIDREPLY
+DESCRIPTOR.message_types_by_name['SubscriberCountRequest'] = _SUBSCRIBERCOUNTREQUEST
+DESCRIPTOR.message_types_by_name['SubscriberCountReply'] = _SUBSCRIBERCOUNTREPLY
 DESCRIPTOR.message_types_by_name['SubscribeRequest'] = _SUBSCRIBEREQUEST
 DESCRIPTOR.message_types_by_name['PullRequest'] = _PULLREQUEST
 DESCRIPTOR.message_types_by_name['PullReply'] = _PULLREPLY
@@ -567,12 +607,19 @@ PublishRequest = _reflection.GeneratedProtocolMessageType('PublishRequest', (_me
   })
 _sym_db.RegisterMessage(PublishRequest)
 
-GenerateIDReply = _reflection.GeneratedProtocolMessageType('GenerateIDReply', (_message.Message,), {
-  'DESCRIPTOR' : _GENERATEIDREPLY,
+SubscriberCountRequest = _reflection.GeneratedProtocolMessageType('SubscriberCountRequest', (_message.Message,), {
+  'DESCRIPTOR' : _SUBSCRIBERCOUNTREQUEST,
   '__module__' : 'batlshm_pb2'
-  # @@protoc_insertion_point(class_scope:GenerateIDReply)
+  # @@protoc_insertion_point(class_scope:SubscriberCountRequest)
   })
-_sym_db.RegisterMessage(GenerateIDReply)
+_sym_db.RegisterMessage(SubscriberCountRequest)
+
+SubscriberCountReply = _reflection.GeneratedProtocolMessageType('SubscriberCountReply', (_message.Message,), {
+  'DESCRIPTOR' : _SUBSCRIBERCOUNTREPLY,
+  '__module__' : 'batlshm_pb2'
+  # @@protoc_insertion_point(class_scope:SubscriberCountReply)
+  })
+_sym_db.RegisterMessage(SubscriberCountReply)
 
 SubscribeRequest = _reflection.GeneratedProtocolMessageType('SubscribeRequest', (_message.Message,), {
   'DESCRIPTOR' : _SUBSCRIBEREQUEST,
@@ -604,8 +651,8 @@ _BATLSHM = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=583,
-  serialized_end=993,
+  serialized_start=682,
+  serialized_end=1122,
   methods=[
   _descriptor.MethodDescriptor(
     name='CreateBuffer',
@@ -658,12 +705,12 @@ _BATLSHM = _descriptor.ServiceDescriptor(
     create_key=_descriptor._internal_create_key,
   ),
   _descriptor.MethodDescriptor(
-    name='GenerateID',
-    full_name='BatlShm.GenerateID',
+    name='GetSubscriberCount',
+    full_name='BatlShm.GetSubscriberCount',
     index=5,
     containing_service=None,
-    input_type=_EMPTY,
-    output_type=_GENERATEIDREPLY,
+    input_type=_SUBSCRIBERCOUNTREQUEST,
+    output_type=_SUBSCRIBERCOUNTREPLY,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),

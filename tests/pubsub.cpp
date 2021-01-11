@@ -3,7 +3,7 @@
 #include <thread>
 #include <string>
 
-const std::string topic = "test_msgs";
+const std::string topic = "cpp_test_msgs";
 const int32_t msg_size = sizeof(int);
 const int msg_data = 5;
 
@@ -35,7 +35,7 @@ void publisher(BatlShmClient* client) {
 }
 
 void subscriber(BatlShmClient* client) {
-    const std::string subscriber_name = "image_processor";
+    const std::string subscriber_name = "cpp_test_subscriber";
     client->Subscribe(topic, subscriber_name);
 
     // pull msg

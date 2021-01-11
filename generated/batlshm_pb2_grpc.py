@@ -39,10 +39,10 @@ class BatlShmStub(object):
                 request_serializer=batlshm__pb2.PublishRequest.SerializeToString,
                 response_deserializer=batlshm__pb2.StandardReply.FromString,
                 )
-        self.GenerateID = channel.unary_unary(
-                '/BatlShm/GenerateID',
-                request_serializer=batlshm__pb2.Empty.SerializeToString,
-                response_deserializer=batlshm__pb2.GenerateIDReply.FromString,
+        self.GetSubscriberCount = channel.unary_unary(
+                '/BatlShm/GetSubscriberCount',
+                request_serializer=batlshm__pb2.SubscriberCountRequest.SerializeToString,
+                response_deserializer=batlshm__pb2.SubscriberCountReply.FromString,
                 )
         self.Subscribe = channel.unary_unary(
                 '/BatlShm/Subscribe',
@@ -91,16 +91,16 @@ class BatlShmServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GenerateID(self, request, context):
-        """Intended for subscribers
-        rpc GetTopics(Empty) returns (TopicList) {}
-        """
+    def GetSubscriberCount(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def Subscribe(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Intended for subscribers
+        rpc GetTopics(Empty) returns (TopicList) {}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -139,10 +139,10 @@ def add_BatlShmServicer_to_server(servicer, server):
                     request_deserializer=batlshm__pb2.PublishRequest.FromString,
                     response_serializer=batlshm__pb2.StandardReply.SerializeToString,
             ),
-            'GenerateID': grpc.unary_unary_rpc_method_handler(
-                    servicer.GenerateID,
-                    request_deserializer=batlshm__pb2.Empty.FromString,
-                    response_serializer=batlshm__pb2.GenerateIDReply.SerializeToString,
+            'GetSubscriberCount': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetSubscriberCount,
+                    request_deserializer=batlshm__pb2.SubscriberCountRequest.FromString,
+                    response_serializer=batlshm__pb2.SubscriberCountReply.SerializeToString,
             ),
             'Subscribe': grpc.unary_unary_rpc_method_handler(
                     servicer.Subscribe,
@@ -250,7 +250,7 @@ class BatlShm(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def GenerateID(request,
+    def GetSubscriberCount(request,
             target,
             options=(),
             channel_credentials=None,
@@ -260,9 +260,9 @@ class BatlShm(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/BatlShm/GenerateID',
-            batlshm__pb2.Empty.SerializeToString,
-            batlshm__pb2.GenerateIDReply.FromString,
+        return grpc.experimental.unary_unary(request, target, '/BatlShm/GetSubscriberCount',
+            batlshm__pb2.SubscriberCountRequest.SerializeToString,
+            batlshm__pb2.SubscriberCountReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

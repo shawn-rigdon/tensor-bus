@@ -1,5 +1,6 @@
 import grpc
-from multiprocessing import shared_memory
+import posix_ipc
+import mmap
 
 import sys
 sys.path.append("../generated")
@@ -7,12 +8,14 @@ sys.path.append("../generated")
 import batlshm_pb2
 import batlshm_pb2_grpc
 
-def MapBuffer(buffer_name):
-    print("BUFFER NAME: " + buffer_name)
-    return shared_memory.SharedMemory(buffer_name)
+def MapBuffer(bufferHandle):
+    shm = posix_ipc.SharedMemory(bufferHandle)
+    mapfile = mmap.mmap(shm.fd, shm.size)
+    shm.close_fd()
+    return mapfile
 
-def UnmapBuffer(shm):
-    shm.close()
+def UnmapBuffer(mapfile):
+    mapfile.close()
 
 class BatlShmClient:
     def __init__(self, ip, port):
@@ -47,6 +50,11 @@ class BatlShmClient:
                 timestamp=timestamp)
         response = self.stub.Publish(request)
         return response.result
+
+    def GetSubscriberCount(self, topic_name):
+        request = batlshm_pb2.SubscriberCountRequest(topic_name=topic_name)
+        response = self.stub.GetSubscriberCount(request)
+        return (response.num_subs, response.result)
 
     def Subscribe(self, topic_name, subscriber_name):
         request = batlshm_pb2.SubscribeRequest(topic_name=topic_name, subscriber_name=subscriber_name)
