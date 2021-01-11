@@ -5,9 +5,14 @@ DONE
 
 2. Memory leak
 	When publisher runs without subscriber, memory never gets released
+DONE
 
 3. c++ client, add overload function that takes ip and port instead of creating a channel in the app main function.
 
 4. python using multiprocessing shm, does not unlink shm and suspects a leak on program exit.  try using posix_ipc
+DONE
 
 5. make grpc generated python modules part of cmake if possible.
+
+6. When a subscriber unexpectedly crashes, how will the system know the number of subscribers is decremented?
+	Possible solution: make derived publisher and subscriber from the client where the destructor unsubsribes
