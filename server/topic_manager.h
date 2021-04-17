@@ -4,10 +4,10 @@
 
 #include "topic_queue.h"
 
-// There should never be a need to have a queue size greater than 2 for
+// There should never be a need to have a queue size greater than 3 for
 // all topics.
-// TODO: what happens if 2 topics in the pipeline have different queue sizes?
-#define QUEUE_SIZE  2
+// TODO: what happens if 3 topics in the pipeline have different queue sizes?
+#define QUEUE_SIZE  3
 
 class TopicManager {
 private:

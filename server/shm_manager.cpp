@@ -49,11 +49,6 @@ void ShmBuffer::deallocate() {
 shared_ptr<ShmBuffer> ShmManager::getBuffer(const string& name) {
     lock_guard<mutex> lock(mMutex);
     auto it = mBuffers.find(name);
-if (it == mBuffers.end()) {
-std::cout << "Buffer not found" << std::endl;
-} else {
-std::cout << "Buffer found" << std::endl;
-}
     return it == mBuffers.end() ? shared_ptr<ShmBuffer>() : it->second;
 }
 
@@ -70,4 +65,12 @@ void ShmManager::release(const string& name) {
         if (it->second->getRefCount() == 0)
             mBuffers.erase(name);
     }
+}
+
+void ShmManager::releaseAll() {
+    lock_guard<mutex> lock(mMutex);
+    for (auto& it: mBuffers)
+        it.second->setRefCount(0);
+
+    mBuffers.clear();
 }

@@ -48,6 +48,7 @@ public:
     shared_ptr<ShmBuffer> getBuffer(const string& name);                                                 
     void add(shared_ptr<ShmBuffer> shm_buf);                                                             
     void release(const string& name);                                                                    
+    void releaseAll();
                                                                                                          
     ~ShmManager() {delete instance;}                                                                     
 };                                                                                                       

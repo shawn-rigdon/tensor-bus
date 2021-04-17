@@ -33,7 +33,7 @@ void Topic::post(TopicQueueItem& item) {
     }
 
     // Remove the oldest queue element not currently being processed by
-    // a subscriber. These keeps the topic up to date.
+    // a subscriber. This keeps the topic up to date.
     // Oldest free topic is at the max subscriber index + 1
 
     unsigned int maxIdx = 0;
@@ -44,7 +44,11 @@ void Topic::post(TopicQueueItem& item) {
     }
 
     if (maxIdx < mMaxQueueSize) { // mMaxQueueSize = mQueue.size() if this block is executed
-        mQueue.erase(maxIdx + 1);
+        int removeIdx = maxIdx + 1;
+        TopicQueueItem removeItem;
+        mQueue.get_val_by_index(removeItem, removeIdx);
+        ShmManager::getInstance()->release(removeItem.buffer_name);
+        mQueue.erase(removeIdx);
         mQueue.push(item);
     }
 }

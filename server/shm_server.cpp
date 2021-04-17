@@ -9,6 +9,7 @@
 #include <atomic>
 #include <mutex>  // For std::unique_lock
 #include <shared_mutex>
+#include <csignal>
 
 #include <sys/mman.h>
 #include <sys/stat.h>        /* For mode constants */
@@ -168,8 +169,13 @@ void RunServer() {
     server->Wait();
 }
 
+void SignalHandler(int signal) {
+    ShmManager::getInstance()->releaseAll();
+    exit(signal);
+}
 
 int main(int argc, char** argv) {
+    std::signal(SIGINT, SignalHandler); // release memory if server is terminated
     spdlog::set_level(spdlog::level::debug);
     RunServer();
     return 0;

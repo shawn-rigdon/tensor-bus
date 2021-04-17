@@ -24,6 +24,12 @@ BatlShmClient::BatlShmClient(std::shared_ptr<Channel> channel) :
 {
 }
 
+BatlShmClient::BatlShmClient(const string& ip, const string& port) {
+    string addr = ip + ":" + port;
+    auto channel = grpc::CreateChannel(addr, grpc::InsecureChannelCredentials());
+    mStub = BatlShm::NewStub(channel);
+}
+
 int32_t BatlShmClient::CreateBuffer(string& name, int32_t size) {
     CreateBufferRequest request;
     CreateBufferReply reply;
@@ -68,12 +74,17 @@ int32_t BatlShmClient::ReleaseBuffer(const string& name) {
     return -1;
 }
 
-int32_t BatlShmClient::RegisterTopic(const string& name) {
+int32_t BatlShmClient::RegisterTopic(const string& name, bool wait) {
     RegisterTopicRequest request;
     StandardReply reply;
     ClientContext context;
     request.set_name(name);
     Status status = mStub->RegisterTopic(&context, request, &reply);
+    while (wait && (!status.ok() || reply.result() == -1)) {
+        ClientContext newcontext; // for some reason a new context var is needed.
+        status = mStub->RegisterTopic(&newcontext, request, &reply);
+    }
+
     if (status.ok())
         return reply.result();
 
@@ -111,13 +122,18 @@ int32_t BatlShmClient::GetSubscriberCount(const string& topic_name, unsigned int
     return reply.result();
 }
 
-int32_t BatlShmClient::Subscribe(const string& topic_name, const string& subscriber_name) {
+int32_t BatlShmClient::Subscribe(const string& topic_name, const string& subscriber_name, bool wait) {
     SubscribeRequest request;
     StandardReply reply;
     ClientContext context;
     request.set_topic_name(topic_name);
     request.set_subscriber_name(subscriber_name);
     Status status = mStub->Subscribe(&context, request, &reply);
+    while (wait && (!status.ok() || reply.result() == -1)) {
+        ClientContext newcontext; // for some reason a new context var is needed.
+        status = mStub->Subscribe(&newcontext, request, &reply);
+    }
+
     if (status.ok())
         return reply.result();
 

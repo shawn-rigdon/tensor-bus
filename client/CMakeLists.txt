@@ -8,6 +8,8 @@ set_source_files_properties(${GRPC_SRC} PROPERTIES GENERATED TRUE)
 
 set(LIB_LIST
     protobuf
+    grpc
+    grpc++
     rt)
 
 set(SRC_LIST shm_client.cpp ${GRPC_SRC} ${PB_SRC})
