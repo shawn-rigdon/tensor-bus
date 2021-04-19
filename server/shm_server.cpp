@@ -169,9 +169,9 @@ void RunServer() {
     server->Wait();
 }
 
-void SignalHandler(int signal) {
+void SignalHandler(int signum) {
     ShmManager::getInstance()->releaseAll();
-    exit(signal);
+    exit(signum);
 }
 
 int main(int argc, char** argv) {
