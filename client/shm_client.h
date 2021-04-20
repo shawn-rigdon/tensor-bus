@@ -29,10 +29,13 @@ public:
     int32_t ReleaseBuffer(const string& name);
     int32_t RegisterTopic(const string& name, bool wait=false);
     int32_t Publish(const string& topic_name, const string& buffer_name, uint64_t timestamp);
+    int32_t Publish(const string& topic_name, const string& buffer_name, const string& metadata, uint64_t timestamp);
     int32_t GetSubscriberCount(const string& topic_name, unsigned int& num_subs);
     int32_t Subscribe(const string& topic_name, const string& subscriber_name, bool wait=false);
     int32_t Pull(const string& topic_name, const string& subscriber_name,
             string& buffer_name, uint64_t timestamp);
+    int32_t Pull(const string& topic_name, const string& subscriber_name,
+            string& buffer_name, string& metadata, uint64_t timestamp);
 };
 
 void* MapBuffer(const string& handle, size_t size);

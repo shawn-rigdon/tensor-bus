@@ -95,11 +95,18 @@ int32_t BatlShmClient::RegisterTopic(const string& name, bool wait) {
 
 int32_t BatlShmClient::Publish(const string& topic_name,
         const string& buffer_name, uint64_t timestamp) {
+    string metadata = "";
+    return Publish(topic_name, buffer_name, metadata, timestamp);
+}
+
+int32_t BatlShmClient::Publish(const string& topic_name,
+        const string& buffer_name, const string& metadata, uint64_t timestamp) {
     PublishRequest request;
     StandardReply reply;
     ClientContext context;
     request.set_topic_name(topic_name);
     request.set_buffer_name(buffer_name);
+    request.set_metadata(metadata);
     request.set_timestamp(timestamp);
     Status status = mStub->Publish(&context, request, &reply);
     if (status.ok())
@@ -144,6 +151,12 @@ int32_t BatlShmClient::Subscribe(const string& topic_name, const string& subscri
 
 int32_t BatlShmClient::Pull(const string& topic_name, const string& subscriber_name,
         string& buffer_name, uint64_t timestamp) {
+    string metadata;
+    return Pull(topic_name, subscriber_name, buffer_name, metadata, timestamp);
+}
+
+int32_t BatlShmClient::Pull(const string& topic_name, const string& subscriber_name,
+        string& buffer_name, string& metadata, uint64_t timestamp) {
     PullRequest request;
     PullReply reply;
     ClientContext context;
@@ -153,6 +166,7 @@ int32_t BatlShmClient::Pull(const string& topic_name, const string& subscriber_n
     if (status.ok()) {
         if (reply.result() == 0) {
             buffer_name = reply.buffer_name();
+            metadata = reply.metadata();
             timestamp = reply.timestamp();
             return 0;
         }

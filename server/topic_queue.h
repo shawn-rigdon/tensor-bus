@@ -103,8 +103,9 @@ public:
 class TopicQueueItem {
 public:
     string buffer_name;
+    string metadata;
     uint64_t timestamp;
-    TopicQueueItem(const string& name, const uint64_t ts);
+    TopicQueueItem(const string& name, const string& metadata, const uint64_t ts);
     TopicQueueItem() = default;
 };      
 

@@ -1,8 +1,9 @@
 #include "topic_queue.h"
 #include "shm_manager.h"
 
-TopicQueueItem::TopicQueueItem(const string& name, const uint64_t ts) :
+TopicQueueItem::TopicQueueItem(const string& name, const string& metadata, const uint64_t ts) :
     buffer_name(name),
+    metadata(metadata),
     timestamp(ts)
 {
 }

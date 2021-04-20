@@ -89,7 +89,7 @@ public:
         if (!shm_buf)
             return Status::OK;
 
-        TopicQueueItem msg(request->buffer_name(), request->timestamp());
+        TopicQueueItem msg(buffer_name, request->metadata(), request->timestamp());
         if (TopicManager::getInstance()->publish(request->topic_name(), msg))
             reply->set_result(0);
         //TODO: This should probably be handled by a client object. We don't want this function
@@ -144,6 +144,7 @@ public:
         if (!item.buffer_name.empty()) {
             reply->set_result(0);
             reply->set_buffer_name(item.buffer_name);
+            reply->set_metadata(item.metadata);
             reply->set_timestamp(item.timestamp);
         }
 

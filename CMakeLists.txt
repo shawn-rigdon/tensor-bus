@@ -14,7 +14,10 @@ endif()
 option(BUILD_SHARED_LIBS "build shared libraries" ON)
 
 #add_subdirectory("${CMAKE_SOURCE_DIR}/dependencies/grpc")
-set(GRPC_INSTALL_DIR "${CMAKE_CURRENT_LIST_DIR}/dependencies/grpc")
+if (NOT DEFINED GRPC_INSTALL_DIR)
+    set(GRPC_INSTALL_DIR "${CMAKE_CURRENT_LIST_DIR}/dependencies/grpc")
+    set(PROTO_SRC "${GRPC_INSTALL_DIR}/third_party/protobuf/src")
+endif()
 add_subdirectory(${GRPC_INSTALL_DIR})
 
 #set(GRPC_INSTALL_DIR "${CMAKE_SOURCE_DIR}/lib/grpc")
@@ -22,7 +25,6 @@ add_subdirectory(${GRPC_INSTALL_DIR})
 #set(GRPC_LIB_DIR "${GRPC_INSTALL_DIR}/lib")
 
 set(GRPC_INCLUDE_DIR ${GRPC_INSTALL_DIR}/${gRPC_INSTALL_INCLUDEDIR})
-set(PROTO_SRC "${GRPC_INSTALL_DIR}/third_party/protobuf/src")
 
 add_subdirectory(server)
 add_subdirectory(client)
