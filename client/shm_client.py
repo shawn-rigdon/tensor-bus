@@ -46,10 +46,11 @@ class BatlShmClient:
 
         return response.result
 
-    def Publish(self, topic_name, buffer_name, timestamp):
+    def Publish(self, topic_name, buffer_name, metadata, timestamp):
         request = batlshm_pb2.PublishRequest(
                 topic_name=topic_name,
                 buffer_name=buffer_name,
+                metadata=metadata,
                 timestamp=timestamp)
         response = self.stub.Publish(request)
         return response.result
@@ -70,4 +71,4 @@ class BatlShmClient:
     def Pull(self, topic_name, subscriber_name):
         request = batlshm_pb2.PullRequest(topic_name=topic_name, subscriber_name=subscriber_name)
         response = self.stub.Pull(request)
-        return (response.buffer_name, response.timestamp, response.result)
+        return (response.buffer_name, response.metadata, response.timestamp, response.result)
