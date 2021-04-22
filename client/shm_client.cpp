@@ -150,18 +150,19 @@ int32_t BatlShmClient::Subscribe(const string& topic_name, const string& subscri
 }
 
 int32_t BatlShmClient::Pull(const string& topic_name, const string& subscriber_name,
-        string& buffer_name, uint64_t timestamp) {
+        string& buffer_name, uint64_t timestamp, bool block) {
     string metadata;
-    return Pull(topic_name, subscriber_name, buffer_name, metadata, timestamp);
+    return Pull(topic_name, subscriber_name, buffer_name, metadata, timestamp, block);
 }
 
 int32_t BatlShmClient::Pull(const string& topic_name, const string& subscriber_name,
-        string& buffer_name, string& metadata, uint64_t timestamp) {
+        string& buffer_name, string& metadata, uint64_t timestamp, bool block) {
     PullRequest request;
     PullReply reply;
     ClientContext context;
     request.set_topic_name(topic_name);
     request.set_subscriber_name(subscriber_name);
+    request.set_block(block);
     Status status = mStub->Pull(&context, request, &reply);
     if (status.ok()) {
         if (reply.result() == 0) {

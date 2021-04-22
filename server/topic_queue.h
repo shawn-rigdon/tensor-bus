@@ -128,7 +128,7 @@ public:
 
     void post(TopicQueueItem& item);
     bool subscribe(string& subsriber_name);
-    bool pull(string& subsriber_name, TopicQueueItem& item);
+    bool pull(string& subsriber_name, TopicQueueItem& item, bool block=true);
     bool decIdx(string& subsriber_name);
     unsigned int clearProcessedPosts();
 };

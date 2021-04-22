@@ -125,9 +125,10 @@ public:
             PullReply* reply) override {
         string topic = request->topic_name();
         string subscriber = request->subscriber_name();
+        bool block = request->block();
         TopicQueueItem item;
         reply->set_result(-1);
-        bool gotItem = TopicManager::getInstance()->pull(topic, subscriber, item);
+        bool gotItem = TopicManager::getInstance()->pull(topic, subscriber, item, block);
         if (!gotItem)
             return Status::CANCELLED;
 

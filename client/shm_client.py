@@ -68,7 +68,7 @@ class BatlShmClient:
 
         return response.result
 
-    def Pull(self, topic_name, subscriber_name):
-        request = batlshm_pb2.PullRequest(topic_name=topic_name, subscriber_name=subscriber_name)
+    def Pull(self, topic_name, subscriber_name, block=True):
+        request = batlshm_pb2.PullRequest(topic_name=topic_name, subscriber_name=subscriber_name, block=block)
         response = self.stub.Pull(request)
         return (response.buffer_name, response.metadata, response.timestamp, response.result)

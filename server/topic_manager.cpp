@@ -40,12 +40,12 @@ bool TopicManager::subscribe(string topic_name, string subscriber_name) {
     return it->second->subscribe(subscriber_name);
 }
 
-bool TopicManager::pull(string topic_name,  string subscriber_name, TopicQueueItem& item) {
+bool TopicManager::pull(string topic_name,  string subscriber_name, TopicQueueItem& item, bool block) {
     auto it = mActiveTopics.find(topic_name);
     if (it == mActiveTopics.end())
         return false; // topic doesn't exist
 
-    return it->second->pull(subscriber_name, item);
+    return it->second->pull(subscriber_name, item, block);
 }
 
 bool TopicManager::cancelPull(string topic_name,  string subscriber_name) {

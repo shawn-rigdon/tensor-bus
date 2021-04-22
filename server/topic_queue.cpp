@@ -56,8 +56,9 @@ void Topic::post(TopicQueueItem& item) {
 
 // this should set item according to the subscriber id's index, increment the index,
 // and pop any elements that have been seen by all subscribers. If the current index
-// is greater than the number of queue elements, block until data is available.
-bool Topic::pull(string& subscriber_name, TopicQueueItem& item) {
+// is greater than the number of queue elements, block until data is available by default.
+// If block false immediately return when there is no available data
+bool Topic::pull(string& subscriber_name, TopicQueueItem& item, bool block) {
     unique_lock<mutex> lock(mMutex);
     auto it = mIndexMap.find(subscriber_name);
     if (it == mIndexMap.end()) {
@@ -69,6 +70,9 @@ bool Topic::pull(string& subscriber_name, TopicQueueItem& item) {
     // it should wait for other subscribers to free up old messages and/or
     // the publisher to post new data
     while (it->second >= mQueue.size()) { // it->second retrieves current subscriber index
+        if (!block)
+            return false;
+
         //spdlog::debug("Subscriber {} is waiting for new data", id);
         mCV.wait(lock);
     }
