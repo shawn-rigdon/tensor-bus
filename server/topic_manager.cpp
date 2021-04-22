@@ -7,8 +7,9 @@ TopicManager::TopicManager() {
 }
 
 bool TopicManager::addTopic(string name) {
+    //TODO: revisit the return value. There's no reason to return false if it already exists
     if (mActiveTopics.find(name) != mActiveTopics.end())
-        return false; // topic already exists
+        return true; // topic already exists
 
     mActiveTopics[name] = make_shared<Topic>(name, QUEUE_SIZE);
     return true;
