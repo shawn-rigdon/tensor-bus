@@ -57,22 +57,13 @@ void ShmManager::add(shared_ptr<ShmBuffer> shm_buf) {
     mBuffers[shm_buf->getName()] = shm_buf;
 }
 
-void ShmManager::release(const string& name) {
+void ShmManager::release(const string& name, int n) {
     lock_guard<mutex> lock(mMutex);
     auto it = mBuffers.find(name);
     if (it != mBuffers.end()) {
-        it->second->decRefCount();
+        it->second->decRefCount(n);
         if (it->second->getRefCount() == 0)
             mBuffers.erase(name);
-    }
-}
-
-void ShmManager::releaseComplete(const string& name) {
-    lock_guard<mutex> lock(mMutex);
-    auto it = mBuffers.find(name);
-    if (it != mBuffers.end()) {
-        it->second->setRefCount(0);
-        mBuffers.erase(name);
     }
 }
 

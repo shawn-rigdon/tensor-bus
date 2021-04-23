@@ -24,7 +24,7 @@ public:
     inline string getName() {return mName;}                                                              
     inline int getRefCount() {return mRefCount;}                                                         
     inline void incRefCount() {mRefCount++;}                                                             
-    inline void decRefCount() {mRefCount = std::max(0, mRefCount - 1);}                                  
+    inline void decRefCount(int n=1) {mRefCount = std::max(0, mRefCount - n);}                                  
     inline void setRefCount(int count) {mRefCount = count;}                                              
     inline size_t getSize() {return mSize;}                                                              
 };                                                                                                       
@@ -47,8 +47,7 @@ public:
                                                                                                          
     shared_ptr<ShmBuffer> getBuffer(const string& name);                                                 
     void add(shared_ptr<ShmBuffer> shm_buf);                                                             
-    void release(const string& name);                                                                    
-    void releaseComplete(const string& name);
+    void release(const string& name, int n=1);                                                                    
     void releaseAll();
                                                                                                          
     ~ShmManager() {delete instance;}                                                                     

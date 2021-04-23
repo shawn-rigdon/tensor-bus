@@ -27,11 +27,12 @@ public:
     int32_t CreateBuffer(string& name, int32_t size);
     int32_t GetBuffer(const string& name, int32_t& size);
     int32_t ReleaseBuffer(const string& name);
-    int32_t RegisterTopic(const string& name, const uint32_t size, bool wait=false);
+    int32_t RegisterTopic(const string& name, bool wait=false);
     int32_t Publish(const string& topic_name, const string& buffer_name, uint64_t timestamp);
     int32_t Publish(const string& topic_name, const string& buffer_name, const string& metadata, uint64_t timestamp);
     int32_t GetSubscriberCount(const string& topic_name, unsigned int& num_subs);
-    int32_t Subscribe(const string& topic_name, const string& subscriber_name, bool wait=false);
+    int32_t Subscribe(const string& topic_name, const string& subscriber_name, unsigned int maxQueueSize=3, bool wait=false);
+    int32_t Subscribe(const string& topic_name, const string& subscriber_name, vector<string>& dependencies, unsigned int maxQueueSize=3, bool wait=false);
     int32_t Pull(const string& topic_name, const string& subscriber_name,
             string& buffer_name, uint64_t timestamp, bool block=true);
     int32_t Pull(const string& topic_name, const string& subscriber_name,

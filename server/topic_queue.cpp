@@ -1,6 +1,8 @@
 #include "topic_queue.h"
 #include "shm_manager.h"
 
+#include <iostream>
+
 TopicQueueItem::TopicQueueItem(const string& name, const string& metadata, const uint64_t ts) :
     buffer_name(name),
     metadata(metadata),
@@ -8,65 +10,80 @@ TopicQueueItem::TopicQueueItem(const string& name, const string& metadata, const
 {
 }
 
-Topic::Topic(string name) :
-    mName(name),
+TopicQueue::TopicQueue(unsigned int maxQueueSize):
+    mMaxQueueSize(maxQueueSize)
 {
 }
 
-TopicQueue::TopicQueue(const unsigned int maxQueueSize):
-    mMaxQueueSize(maxQueueSize)
+Topic::Topic(string name) :
+    mName(name)
 {
 }
 
 // If the subscriber is not already subscribed to the topic
 // the given subscriber name is set to the oldest position in the queue.
 // This subscriber method allows multiple subscribers of the same name.
-bool Topic::subscribe(string& subscriber_name, unsigned int maxQueueSize, vector<string>* dependencies) {
+bool Topic::subscribe(string& subscriber_name, std::vector<string>& dependencies, unsigned int maxQueueSize) {
+std::cout << __FILE__ << __LINE__ << std::endl;
     unique_lock<mutex> lock(mMutex);
-    if (dependencies->size() > 0)
-        for (int i; i < dependencies->size(); ++i) {
-            auto it = mQueueMap.find(dependencies[i]);
-            if (it == mIndexMap.end())
-                mQueueMap[dependencies[i]] = make_shared<TopicQueue>(maxQueueSize);
-            auto idx_it = mQueueMap[dependencies[i]]->mIndexMap.find(subscriber_name);
-            if (idx_it != mQueueMap[dependencies[i]]->mIndexMap.end())
-                mQueueMap[dependencies[i]]->mIndexMap[subscriber_name] = 0;
-    } else {
-        auto it = mQueueMap.find(subscriber_name);
-        if (it == mIndexMap.end())
-            mIndexMap[subscriber_name] = make_shared<TopicQueue>(maxQueueSize);
-            mIndexMap[subscriber_name]->mIndexMap[subscriber_name] = 0;
+std::cout << __FILE__ << __LINE__ << std::endl;
+    if (dependencies.size() > 0) {
+std::cout << __FILE__ << __LINE__ << std::endl;
+        if (dependencyMap.find(subscriber_name) != dependencyMap.end())
+            return true;
+
+std::cout << __FILE__ << __LINE__ << std::endl;
+        std::cout << "Searching for dependency" << std::endl;
+        string foundName;
+        bool foundDependency = false;
+        while (!foundDependency) {
+            for (int i=0; i < dependencies.size(); ++i) {
+                if (mQueueMap.find(dependencies[i]) != mQueueMap.end()) {
+                    foundDependency = true;
+                    foundName = dependencies[i];
+                    break;
+                }
+            }
+            mCV.wait(lock);
         }
+        dependencyMap[subscriber_name] = foundName; // point to a parent queue
+        mQueueMap[foundName]->mIndexMap[subscriber_name] = 0; // init position index in parent queue
+    } else if (mQueueMap.find(subscriber_name) == mQueueMap.end()) {
+        mQueueMap[subscriber_name] = make_shared<TopicQueue>(maxQueueSize);
+        mQueueMap[subscriber_name]->mIndexMap[subscriber_name] = 0;
     }
 
     return true;
 }
 
 void Topic::post(TopicQueueItem& item) {
-    if (mMaxQueueSize == 0 || mQueue.size() < mMaxQueueSize) {
-        mQueue.push(item);
-        mCV.notify_all();
-        return;
-    }
+    for (auto q_it = mQueueMap.begin(); q_it != mQueueMap.end(); ++q_it) {
+        shared_ptr<TopicQueue> q = q_it->second; 
+        if (q->mMaxQueueSize == 0 || q->size() < q->mMaxQueueSize) {
+            q->push(item);
+            q->cv_idx.notify_all();
+            return;
+        }
 
-    // Remove the oldest queue element not currently being processed by
-    // a subscriber. This keeps the topic up to date.
-    // Oldest free topic is at the max subscriber index + 1
+        // Remove the oldest queue element not currently being processed by
+        // a subscriber. This keeps the topic up to date.
+        // Oldest free topic is at the max subscriber index + 1
 
-    unsigned int maxIdx = 0;
-    unique_lock<mutex> lock(mMutex);
-    for (auto it = mIndexMap.begin(); it != mIndexMap.end(); it++) {
-        if (it->second > maxIdx)
-            maxIdx = it->second;
-    }
+        unsigned int maxIdx = 0;
+        unique_lock<mutex> lock(mMutex);
+        for (auto it = q->mIndexMap.begin(); it != q->mIndexMap.end(); it++) {
+            if (it->second > maxIdx)
+                maxIdx = it->second;
+        }
 
-    if (maxIdx < mMaxQueueSize) { // mMaxQueueSize = mQueue.size() if this block is executed
-        int removeIdx = maxIdx + 1;
-        TopicQueueItem removeItem;
-        mQueue.get_val_by_index(removeItem, removeIdx);
-        ShmManager::getInstance()->releaseComplete(removeItem.buffer_name);
-        mQueue.erase(removeIdx);
-        mQueue.push(item);
+        if (maxIdx < q->mMaxQueueSize) { // mMaxQueueSize = mQueue.size() if this block is executed
+            int removeIdx = maxIdx + 1;
+            TopicQueueItem removeItem;
+            q->get_val_by_index(removeItem, removeIdx);
+            ShmManager::getInstance()->release(removeItem.buffer_name, q->mIndexMap.size());
+            q->erase(removeIdx);
+            q->push(item);
+        }
     }
 }
 
@@ -75,9 +92,15 @@ void Topic::post(TopicQueueItem& item) {
 // is greater than the number of queue elements, block until data is available by default.
 // If block false immediately return when there is no available data
 bool Topic::pull(string& subscriber_name, TopicQueueItem& item, bool block) {
-    unique_lock<mutex> lock(mMutex);
-    auto it = mIndexMap.find(subscriber_name);
-    if (it == mIndexMap.end()) {
+    shared_ptr<TopicQueue> q;
+    if (dependencyMap.find(subscriber_name) != dependencyMap.end())
+        q = mQueueMap[ dependencyMap[subscriber_name] ];
+    else
+        q = mQueueMap[subscriber_name];
+
+    unique_lock<mutex> lock(q->mutex_idx);
+    auto it = q->mIndexMap.find(subscriber_name);
+    if (it == q->mIndexMap.end()) {
         //spdlog::error("Subscriber ID {} is not assigned to topic {}", id, mName);
         return false;
     }
@@ -85,22 +108,28 @@ bool Topic::pull(string& subscriber_name, TopicQueueItem& item, bool block) {
     // If the current subscriber has processed all available queue messages,
     // it should wait for other subscribers to free up old messages and/or
     // the publisher to post new data
-    while (it->second >= mQueue.size()) { // it->second retrieves current subscriber index
+    while (it->second >= q->size()) { // it->second retrieves current subscriber index
         if (!block)
             return false;
 
         //spdlog::debug("Subscriber {} is waiting for new data", id);
-        mCV.wait(lock);
+        q->cv_idx.wait(lock);
     }
 
-    mQueue.get_val_by_index(item, it->second++); // note the index is incremented
+    q->get_val_by_index(item, it->second++); // note the index is incremented
     return true;
 }
 
 bool Topic::decIdx(string& subscriber_name) {
-    unique_lock<mutex> lock(mMutex);
-    auto it = mIndexMap.find(subscriber_name);
-    if (it == mIndexMap.end()) {
+    shared_ptr<TopicQueue> q;
+    if (dependencyMap.find(subscriber_name) != dependencyMap.end())
+        q = mQueueMap[ dependencyMap[subscriber_name] ];
+    else
+        q = mQueueMap[subscriber_name];
+
+    unique_lock<mutex> lock(q->mutex_idx);
+    auto it = q->mIndexMap.find(subscriber_name);
+    if (it == q->mIndexMap.end()) {
         //spdlog::error("Subscriber ID {} is not assigned to topic {}", id, mName);
         return false;
     }
@@ -112,10 +141,16 @@ bool Topic::decIdx(string& subscriber_name) {
 // Check if low index queue items have been processed by all subscribers. Pop
 // all queue elements that are no longer needed. This will be done by the slowest
 // subscriber.
-unsigned int Topic::clearProcessedPosts() {
-    unique_lock<mutex> lock(mMutex);
-    unsigned int minIdx = mMaxQueueSize;
-    for (auto min_it = mIndexMap.begin(); min_it != mIndexMap.end(); min_it++) {
+unsigned int Topic::clearProcessedPosts(string& subscriber_name) {
+    shared_ptr<TopicQueue> q;
+    if (dependencyMap.find(subscriber_name) != dependencyMap.end())
+        q = mQueueMap[ dependencyMap[subscriber_name] ];
+    else
+        q = mQueueMap[subscriber_name];
+
+    unique_lock<mutex> lock(q->mutex_idx);
+    unsigned int minIdx = q->mMaxQueueSize;
+    for (auto min_it = q->mIndexMap.begin(); min_it != q->mIndexMap.end(); min_it++) {
         if (min_it->second < minIdx)
             minIdx = min_it->second;
     }
@@ -124,7 +159,7 @@ unsigned int Topic::clearProcessedPosts() {
     //unsigned int released_count = 0;
     unsigned int popped_count = 0;
     for (int i=0; i < minIdx; i++) {
-        if (mQueue.pop(old_item)) {
+        if (q->pop(old_item)) {
             //ShmManager::getInstance()->release(old_item.buffer_name);
             //released_count++;
             popped_count++;
@@ -134,7 +169,7 @@ unsigned int Topic::clearProcessedPosts() {
     // Need to decrement subscriber indices after removing old elements
     //if (released_count > 0) {
     if (popped_count > 0) {
-        for (auto dec_it = mIndexMap.begin(); dec_it != mIndexMap.end(); dec_it++)
+        for (auto dec_it = q->mIndexMap.begin(); dec_it != q->mIndexMap.end(); dec_it++)
             //dec_it->second = (dec_it->second > released_count) ? dec_it->second - released_count : 0;
             dec_it->second = (dec_it->second > popped_count) ? dec_it->second - popped_count : 0;
     }

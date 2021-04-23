@@ -74,12 +74,11 @@ int32_t BatlShmClient::ReleaseBuffer(const string& name) {
     return -1;
 }
 
-int32_t BatlShmClient::RegisterTopic(const string& name, const uint32_t size, bool wait) {
+int32_t BatlShmClient::RegisterTopic(const string& name, bool wait) {
     RegisterTopicRequest request;
     StandardReply reply;
     ClientContext context;
     request.set_name(name);
-    request.set_size(size);
     Status status = mStub->RegisterTopic(&context, request, &reply);
     while (wait && (!status.ok() || reply.result() == -1)) {
         ClientContext newcontext; // for some reason a new context var is needed.
@@ -130,12 +129,21 @@ int32_t BatlShmClient::GetSubscriberCount(const string& topic_name, unsigned int
     return reply.result();
 }
 
-int32_t BatlShmClient::Subscribe(const string& topic_name, const string& subscriber_name, bool wait) {
+int32_t BatlShmClient::Subscribe(const string& topic_name, const string& subscriber_name, unsigned int maxQueueSize, bool wait) {
+    vector<string> v;
+    Subscribe(topic_name, subscriber_name, v, maxQueueSize, wait);
+}
+
+int32_t BatlShmClient::Subscribe(const string& topic_name, const string& subscriber_name, vector<string>& dependencies, unsigned int maxQueueSize, bool wait) {
     SubscribeRequest request;
     StandardReply reply;
     ClientContext context;
     request.set_topic_name(topic_name);
     request.set_subscriber_name(subscriber_name);
+    request.set_maxqueuesize(maxQueueSize);
+    for (int i=0; i < dependencies.size(); ++i)
+        request.add_dependencies(dependencies[i]);
+
     Status status = mStub->Subscribe(&context, request, &reply);
     while (wait && (!status.ok() || reply.result() == -1)) {
         ClientContext newcontext; // for some reason a new context var is needed.

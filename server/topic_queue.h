@@ -4,6 +4,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <unordered_map>
+#include <vector>
 
 //#include "spdlog/spdlog.h"
 
@@ -12,8 +13,8 @@ using namespace std::chrono_literals;
 using namespace std;
 
 template <typename Data>
-class Queue {
-private:
+class ThreadSafeQueue {
+protected:
     deque<Data> mQueue;
     mutable mutex mMutex;
     condition_variable mCV;
@@ -109,33 +110,38 @@ public:
     TopicQueueItem() = default;
 };      
 
-class TopicQueue {
-private:
-    unsigned int mMaxQueueSize;
-    unordered_map<string, unsigned int> mIndexMap;
-    Queue<TopicQueueItem> mQueue;
-    mutable mutex mMutex;
-    condition_variable mCV;
-
+class TopicQueue : public ThreadSafeQueue<TopicQueueItem> {
 public:
-    TopicQueue(const unsigned int maxQueueSize);
-    virtual ~TopicQueue;
+    unsigned int mMaxQueueSize;
+    mutex mutex_idx;
+    condition_variable cv_idx;
+    unordered_map<string, unsigned int> mIndexMap;
 
-    unsigned int size() {return mIndexMap.size();}
+    TopicQueue(const unsigned int maxQueueSize);
+    virtual ~TopicQueue() {}
+
+    void get(TopicQueueItem& item);
+    void put(const TopicQueueItem& item);
+};
 
 
 class Topic {
 private:
     string mName;
-    unordered_map< string, shared_ptr<TopicQueue> mQueueMap;
+    mutex mMutex;
+    condition_variable mCV;
+    unordered_map< string, shared_ptr<TopicQueue> > mQueueMap;
+    unordered_map<string, string> dependencyMap;
 
 public:
-    Topic(string name, unsigned int maxQueueSize=0);
+    Topic(string name);
     virtual ~Topic() {}
 
     void post(TopicQueueItem& item);
-    bool subscribe(string& subsriber_name);
+    bool subscribe(string& subsriber_name, std::vector<string>& dependencies, unsigned int maxQueueSize);
     bool pull(string& subsriber_name, TopicQueueItem& item, bool block=true);
     bool decIdx(string& subsriber_name);
-    unsigned int clearProcessedPosts();
+    unsigned int clearProcessedPosts(string& subscriber_name);
+
+    unsigned int size() const {return mQueueMap.size() + dependencyMap.size();}
 };

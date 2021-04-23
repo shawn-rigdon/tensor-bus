@@ -36,7 +36,7 @@ void publisher(BatlShmClient* client) {
 
 void subscriber(BatlShmClient* client) {
     const std::string subscriber_name = "cpp_test_subscriber";
-    client->Subscribe(topic, subscriber_name);
+    client->Subscribe(topic, subscriber_name, 3);
 
     // pull msg
     std::string buffer_name;

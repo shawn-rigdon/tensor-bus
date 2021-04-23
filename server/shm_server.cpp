@@ -75,7 +75,8 @@ public:
     Status RegisterTopic(ServerContext* context, const RegisterTopicRequest* request,
             StandardReply* reply) override {
         reply->set_result(0);
-        if (!TopicManager::getInstance()->addTopic(request->name(), request->size()))
+        string name = request->name();
+        if (!TopicManager::getInstance()->addTopic(name))
             reply->set_result(-1); // topic already exists
 
         return Status::OK;
@@ -97,7 +98,7 @@ public:
         //TODO: This should probably be handled by a client object. We don't want this function
         //      to assume a buffer needs to get released.
         } else
-            ShmManager::getInstance()->releaseComplete(buffer_name);
+            ShmManager::getInstance()->release(buffer_name, sub_count);
 
         return Status::OK;
     }
@@ -117,8 +118,24 @@ public:
     Status Subscribe(ServerContext* context, const SubscribeRequest* request,
             StandardReply* reply) override {
         reply->set_result(0);
-        if (!TopicManager::getInstance()->subscribe(request->topic_name(), request->subscriber_name()))
+std::cout << "Subscribe request from: " << request->subscriber_name() << std::endl;
+        std::vector<string> dep;
+        dep.reserve(request->dependencies_size());
+std::cout << __LINE__ << std::endl;
+        for (int i=0; i < request->dependencies_size(); ++i)
+{
+std::cout << __LINE__ << std::endl;
+            dep.emplace_back(request->dependencies(i));
+std::cout << __LINE__ << std::endl;
+}
+
+std::cout << __LINE__ << std::endl;
+        if (!TopicManager::getInstance()->subscribe(request->topic_name(), request->subscriber_name(), dep, request->maxqueuesize()));
+{
+std::cout << __LINE__ << std::endl;
             reply->set_result(-1);
+std::cout << __LINE__ << std::endl;
+}
 
         return Status::OK;
     }
@@ -142,7 +159,7 @@ public:
 
         // Got a topic item, so we need to release old items before returning.
         // This is done here to support client cancellation.
-        TopicManager::getInstance()->clearOldPosts(topic);
+        TopicManager::getInstance()->clearOldPosts(topic, subscriber);
 
         if (!item.buffer_name.empty()) {
             reply->set_result(0);

@@ -48,7 +48,6 @@ message ReleaseBufferRequest {
 
 message RegisterTopicRequest {
     string name = 1;
-    uint32 size = 2;
 }
 
 message PublishRequest {
@@ -74,6 +73,8 @@ message SubscriberCountReply {
 message SubscribeRequest {
     string topic_name = 1;
     string subscriber_name = 2;
+    uint32 maxqueuesize = 3;
+    repeated string dependencies = 4;
 }
 
 message PullRequest {

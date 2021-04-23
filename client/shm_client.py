@@ -38,8 +38,8 @@ class BatlShmClient:
         response = self.stub.ReleaseBuffer(request)
         return response.result
 
-    def RegisterTopic(self, name, size, wait=False):
-        request = batlshm_pb2.RegisterTopicRequest(name=name, size=size)
+    def RegisterTopic(self, name, wait=False):
+        request = batlshm_pb2.RegisterTopicRequest(name=name)
         response = self.stub.RegisterTopic(request)
         while (wait and response.result == -1):
             response = self.stub.RegisterTopic(request)
@@ -60,8 +60,11 @@ class BatlShmClient:
         response = self.stub.GetSubscriberCount(request)
         return (response.num_subs, response.result)
 
-    def Subscribe(self, topic_name, subscriber_name, wait=False):
-        request = batlshm_pb2.SubscribeRequest(topic_name=topic_name, subscriber_name=subscriber_name)
+    def Subscribe(self, topic_name, subscriber_name, depends=None, maxQueueSize=3, wait=False):
+        if depends is None:
+            depends = []
+
+        request = batlshm_pb2.SubscribeRequest(topic_name=topic_name, subscriber_name=subscriber_name, maxqueuesize=maxQueueSize)
         response = self.stub.Subscribe(request)
         while (wait and response.result == -1):
             response = self.stub.Subscribe(request)
