@@ -7,7 +7,7 @@
 // There should never be a need to have a queue size greater than 3 for
 // all topics.
 // TODO: what happens if 3 topics in the pipeline have different queue sizes?
-#define QUEUE_SIZE  3
+#define DEFAULT_QUEUE_SIZE  3
 
 class TopicManager {
 private:
@@ -23,7 +23,7 @@ public:
         return instance;
     }
 
-    bool addTopic(string name);
+    bool addTopic(string& name, uint32_t size=DEFAULT_QUEUE_SIZE);
     bool publish(string topic_name, TopicQueueItem& item);
     bool subscribe(string topic_name, string subscriber_name);
     bool pull(string topic_name,  string subscriber_name, TopicQueueItem& item, bool block=true);

@@ -38,8 +38,8 @@ class BatlShmClient:
         response = self.stub.ReleaseBuffer(request)
         return response.result
 
-    def RegisterTopic(self, name, wait=False):
-        request = batlshm_pb2.RegisterTopicRequest(name=name)
+    def RegisterTopic(self, name, size, wait=False):
+        request = batlshm_pb2.RegisterTopicRequest(name=name, size=size)
         response = self.stub.RegisterTopic(request)
         while (wait and response.result == -1):
             response = self.stub.RegisterTopic(request)

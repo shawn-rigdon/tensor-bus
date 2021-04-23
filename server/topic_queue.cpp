@@ -48,7 +48,7 @@ void Topic::post(TopicQueueItem& item) {
         int removeIdx = maxIdx + 1;
         TopicQueueItem removeItem;
         mQueue.get_val_by_index(removeItem, removeIdx);
-        ShmManager::getInstance()->release(removeItem.buffer_name);
+        ShmManager::getInstance()->releaseComplete(removeItem.buffer_name);
         mQueue.erase(removeIdx);
         mQueue.push(item);
     }

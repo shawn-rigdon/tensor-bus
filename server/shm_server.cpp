@@ -75,7 +75,7 @@ public:
     Status RegisterTopic(ServerContext* context, const RegisterTopicRequest* request,
             StandardReply* reply) override {
         reply->set_result(0);
-        if (!TopicManager::getInstance()->addTopic(request->name()))
+        if (!TopicManager::getInstance()->addTopic(request->name(), request->size()))
             reply->set_result(-1); // topic already exists
 
         return Status::OK;
@@ -89,13 +89,15 @@ public:
         if (!shm_buf)
             return Status::OK;
 
+        unsigned int sub_count = TopicManager::getInstance()->getSubscriberCount(request->topic_name());
+        shm_buf->setRefCount(sub_count);
         TopicQueueItem msg(buffer_name, request->metadata(), request->timestamp());
-        if (TopicManager::getInstance()->publish(request->topic_name(), msg))
+        if (TopicManager::getInstance()->publish(request->topic_name(), msg)) {
             reply->set_result(0);
         //TODO: This should probably be handled by a client object. We don't want this function
         //      to assume a buffer needs to get released.
-        else
-            ShmManager::getInstance()->release(buffer_name);
+        } else
+            ShmManager::getInstance()->releaseComplete(buffer_name);
 
         return Status::OK;
     }
@@ -130,7 +132,7 @@ public:
         reply->set_result(-1);
         bool gotItem = TopicManager::getInstance()->pull(topic, subscriber, item, block);
         if (!gotItem)
-            return Status::CANCELLED;
+            return Status::OK;
 
         unique_lock<mutex> lock(mMutex);
         if (context->IsCancelled()) {

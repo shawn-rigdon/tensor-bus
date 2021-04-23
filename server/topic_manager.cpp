@@ -6,12 +6,12 @@ TopicManager::TopicManager() {
     mActiveTopics.reserve(10);
 }
 
-bool TopicManager::addTopic(string name) {
+bool TopicManager::addTopic(string& name, uint32_t size) {
     //TODO: revisit the return value. There's no reason to return false if it already exists
     if (mActiveTopics.find(name) != mActiveTopics.end())
         return true; // topic already exists
 
-    mActiveTopics[name] = make_shared<Topic>(name, QUEUE_SIZE);
+    mActiveTopics[name] = make_shared<Topic>(name, size);
     return true;
 }
 

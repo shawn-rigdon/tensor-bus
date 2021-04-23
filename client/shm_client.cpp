@@ -74,11 +74,12 @@ int32_t BatlShmClient::ReleaseBuffer(const string& name) {
     return -1;
 }
 
-int32_t BatlShmClient::RegisterTopic(const string& name, bool wait) {
+int32_t BatlShmClient::RegisterTopic(const string& name, const uint32_t size, bool wait) {
     RegisterTopicRequest request;
     StandardReply reply;
     ClientContext context;
     request.set_name(name);
+    request.set_size(size);
     Status status = mStub->RegisterTopic(&context, request, &reply);
     while (wait && (!status.ok() || reply.result() == -1)) {
         ClientContext newcontext; // for some reason a new context var is needed.
