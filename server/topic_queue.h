@@ -109,11 +109,8 @@ public:
     TopicQueueItem() = default;
 };      
 
-
-
-class Topic {
+class TopicQueue {
 private:
-    string mName;
     unsigned int mMaxQueueSize;
     unordered_map<string, unsigned int> mIndexMap;
     Queue<TopicQueueItem> mQueue;
@@ -121,10 +118,20 @@ private:
     condition_variable mCV;
 
 public:
-    Topic(string name, unsigned int maxQueueSize=0);
-    virtual ~Topic() {}
+    TopicQueue(const unsigned int maxQueueSize);
+    virtual ~TopicQueue;
 
     unsigned int size() {return mIndexMap.size();}
+
+
+class Topic {
+private:
+    string mName;
+    unordered_map< string, shared_ptr<TopicQueue> mQueueMap;
+
+public:
+    Topic(string name, unsigned int maxQueueSize=0);
+    virtual ~Topic() {}
 
     void post(TopicQueueItem& item);
     bool subscribe(string& subsriber_name);

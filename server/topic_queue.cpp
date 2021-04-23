@@ -8,8 +8,12 @@ TopicQueueItem::TopicQueueItem(const string& name, const string& metadata, const
 {
 }
 
-Topic::Topic(string name, unsigned int maxQueueSize) :
+Topic::Topic(string name) :
     mName(name),
+{
+}
+
+TopicQueue::TopicQueue(const unsigned int maxQueueSize):
     mMaxQueueSize(maxQueueSize)
 {
 }
@@ -17,11 +21,23 @@ Topic::Topic(string name, unsigned int maxQueueSize) :
 // If the subscriber is not already subscribed to the topic
 // the given subscriber name is set to the oldest position in the queue.
 // This subscriber method allows multiple subscribers of the same name.
-bool Topic::subscribe(string& subscriber_name) {
+bool Topic::subscribe(string& subscriber_name, unsigned int maxQueueSize, vector<string>* dependencies) {
     unique_lock<mutex> lock(mMutex);
-    auto it = mIndexMap.find(subscriber_name);
-    if (it == mIndexMap.end())
-        mIndexMap[subscriber_name] = 0;
+    if (dependencies->size() > 0)
+        for (int i; i < dependencies->size(); ++i) {
+            auto it = mQueueMap.find(dependencies[i]);
+            if (it == mIndexMap.end())
+                mQueueMap[dependencies[i]] = make_shared<TopicQueue>(maxQueueSize);
+            auto idx_it = mQueueMap[dependencies[i]]->mIndexMap.find(subscriber_name);
+            if (idx_it != mQueueMap[dependencies[i]]->mIndexMap.end())
+                mQueueMap[dependencies[i]]->mIndexMap[subscriber_name] = 0;
+    } else {
+        auto it = mQueueMap.find(subscriber_name);
+        if (it == mIndexMap.end())
+            mIndexMap[subscriber_name] = make_shared<TopicQueue>(maxQueueSize);
+            mIndexMap[subscriber_name]->mIndexMap[subscriber_name] = 0;
+        }
+    }
 
     return true;
 }
