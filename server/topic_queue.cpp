@@ -24,15 +24,11 @@ Topic::Topic(string name) :
 // the given subscriber name is set to the oldest position in the queue.
 // This subscriber method allows multiple subscribers of the same name.
 bool Topic::subscribe(string& subscriber_name, std::vector<string>& dependencies, unsigned int maxQueueSize) {
-std::cout << __FILE__ << __LINE__ << std::endl;
     unique_lock<mutex> lock(mMutex);
-std::cout << __FILE__ << __LINE__ << std::endl;
     if (dependencies.size() > 0) {
-std::cout << __FILE__ << __LINE__ << std::endl;
         if (dependencyMap.find(subscriber_name) != dependencyMap.end())
             return true;
 
-std::cout << __FILE__ << __LINE__ << std::endl;
         std::cout << "Searching for dependency" << std::endl;
         string foundName;
         bool foundDependency = false;
@@ -51,18 +47,24 @@ std::cout << __FILE__ << __LINE__ << std::endl;
     } else if (mQueueMap.find(subscriber_name) == mQueueMap.end()) {
         mQueueMap[subscriber_name] = make_shared<TopicQueue>(maxQueueSize);
         mQueueMap[subscriber_name]->mIndexMap[subscriber_name] = 0;
+        mCV.notify_all();
     }
 
     return true;
 }
 
 void Topic::post(TopicQueueItem& item) {
+    unique_lock<mutex> lock(mMutex);
+int loopCnt = 0;
     for (auto q_it = mQueueMap.begin(); q_it != mQueueMap.end(); ++q_it) {
+std::cout << "loopcnt: " << ++loopCnt << std::endl;
         shared_ptr<TopicQueue> q = q_it->second; 
+std::cout << "Subsriber (" << q_it->first << ") queue size: " << q->size() << std::endl;
         if (q->mMaxQueueSize == 0 || q->size() < q->mMaxQueueSize) {
+std::cout << "Posting buffer: " << item.buffer_name << std::endl;
             q->push(item);
             q->cv_idx.notify_all();
-            return;
+            continue;
         }
 
         // Remove the oldest queue element not currently being processed by
@@ -70,16 +72,17 @@ void Topic::post(TopicQueueItem& item) {
         // Oldest free topic is at the max subscriber index + 1
 
         unsigned int maxIdx = 0;
-        unique_lock<mutex> lock(mMutex);
         for (auto it = q->mIndexMap.begin(); it != q->mIndexMap.end(); it++) {
             if (it->second > maxIdx)
                 maxIdx = it->second;
         }
 
-        if (maxIdx < q->mMaxQueueSize) { // mMaxQueueSize = mQueue.size() if this block is executed
-            int removeIdx = maxIdx + 1;
+std::cout << "max idx: " << maxIdx << std::endl;
+        int removeIdx = maxIdx + 1;
+        if (removeIdx < q->mMaxQueueSize) { // mMaxQueueSize = mQueue.size() if this block is executed
             TopicQueueItem removeItem;
             q->get_val_by_index(removeItem, removeIdx);
+std::cout << "POST: releasing " << removeItem.buffer_name << std::endl;
             ShmManager::getInstance()->release(removeItem.buffer_name, q->mIndexMap.size());
             q->erase(removeIdx);
             q->push(item);
@@ -91,16 +94,29 @@ void Topic::post(TopicQueueItem& item) {
 // and pop any elements that have been seen by all subscribers. If the current index
 // is greater than the number of queue elements, block until data is available by default.
 // If block false immediately return when there is no available data
-bool Topic::pull(string& subscriber_name, TopicQueueItem& item, bool block) {
+bool Topic::pull(string& subscriber_name, TopicQueueItem& item, int timeout) {
+std::cout << "Pulling for subscriber: " << subscriber_name << std::endl;
+std::cout << "timeout: " << timeout << std::endl;
     shared_ptr<TopicQueue> q;
     if (dependencyMap.find(subscriber_name) != dependencyMap.end())
+{
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
         q = mQueueMap[ dependencyMap[subscriber_name] ];
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+}
     else
+{
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
         q = mQueueMap[subscriber_name];
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+}
 
     unique_lock<mutex> lock(q->mutex_idx);
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
     auto it = q->mIndexMap.find(subscriber_name);
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
     if (it == q->mIndexMap.end()) {
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
         //spdlog::error("Subscriber ID {} is not assigned to topic {}", id, mName);
         return false;
     }
@@ -108,14 +124,26 @@ bool Topic::pull(string& subscriber_name, TopicQueueItem& item, bool block) {
     // If the current subscriber has processed all available queue messages,
     // it should wait for other subscribers to free up old messages and/or
     // the publisher to post new data
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
     while (it->second >= q->size()) { // it->second retrieves current subscriber index
-        if (!block)
-            return false;
-
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
         //spdlog::debug("Subscriber {} is waiting for new data", id);
-        q->cv_idx.wait(lock);
+        if (timeout < 0)
+{
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+            q->cv_idx.wait(lock); // block until new data is available
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+}
+        else {
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+            auto status = q->cv_idx.wait_until(lock, system_clock::now() + timeout*1ms);
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+            if (status == std::cv_status::timeout)
+                return false; // return false if timeout
+        }
     }
 
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
     q->get_val_by_index(item, it->second++); // note the index is incremented
     return true;
 }

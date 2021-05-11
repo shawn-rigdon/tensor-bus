@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rbatlshm.proto\"\x07\n\x05\x45mpty\"\x1f\n\rStandardReply\x12\x0e\n\x06result\x18\x01 \x01(\x05\"#\n\x13\x43reateBufferRequest\x12\x0c\n\x04size\x18\x01 \x01(\x05\"1\n\x11\x43reateBufferReply\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06result\x18\x02 \x01(\x05\" \n\x10GetBufferRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\".\n\x0eGetBufferReply\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x0c\n\x04size\x18\x02 \x01(\r\"$\n\x14ReleaseBufferRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"$\n\x14RegisterTopicRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"^\n\x0ePublishRequest\x12\x12\n\ntopic_name\x18\x01 \x01(\t\x12\x13\n\x0b\x62uffer_name\x18\x02 \x01(\t\x12\x10\n\x08metadata\x18\x03 \x01(\x0c\x12\x11\n\ttimestamp\x18\x04 \x01(\x04\",\n\x16SubscriberCountRequest\x12\x12\n\ntopic_name\x18\x01 \x01(\t\"8\n\x14SubscriberCountReply\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x10\n\x08num_subs\x18\x02 \x01(\r\"k\n\x10SubscribeRequest\x12\x12\n\ntopic_name\x18\x01 \x01(\t\x12\x17\n\x0fsubscriber_name\x18\x02 \x01(\t\x12\x14\n\x0cmaxqueuesize\x18\x03 \x01(\r\x12\x14\n\x0c\x64\x65pendencies\x18\x04 \x03(\t\"I\n\x0bPullRequest\x12\x12\n\ntopic_name\x18\x01 \x01(\t\x12\x17\n\x0fsubscriber_name\x18\x02 \x01(\t\x12\r\n\x05\x62lock\x18\x03 \x01(\x08\"U\n\tPullReply\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x13\n\x0b\x62uffer_name\x18\x02 \x01(\t\x12\x10\n\x08metadata\x18\x03 \x01(\x0c\x12\x11\n\ttimestamp\x18\x04 \x01(\x04\x32\xb8\x03\n\x07\x42\x61tlShm\x12:\n\x0c\x43reateBuffer\x12\x14.CreateBufferRequest\x1a\x12.CreateBufferReply\"\x00\x12\x31\n\tGetBuffer\x12\x11.GetBufferRequest\x1a\x0f.GetBufferReply\"\x00\x12\x38\n\rReleaseBuffer\x12\x15.ReleaseBufferRequest\x1a\x0e.StandardReply\"\x00\x12\x38\n\rRegisterTopic\x12\x15.RegisterTopicRequest\x1a\x0e.StandardReply\"\x00\x12,\n\x07Publish\x12\x0f.PublishRequest\x1a\x0e.StandardReply\"\x00\x12\x46\n\x12GetSubscriberCount\x12\x17.SubscriberCountRequest\x1a\x15.SubscriberCountReply\"\x00\x12\x30\n\tSubscribe\x12\x11.SubscribeRequest\x1a\x0e.StandardReply\"\x00\x12\"\n\x04Pull\x12\x0c.PullRequest\x1a\n.PullReply\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\rbatlshm.proto\"\x07\n\x05\x45mpty\"\x1f\n\rStandardReply\x12\x0e\n\x06result\x18\x01 \x01(\x05\"#\n\x13\x43reateBufferRequest\x12\x0c\n\x04size\x18\x01 \x01(\x05\"1\n\x11\x43reateBufferReply\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06result\x18\x02 \x01(\x05\" \n\x10GetBufferRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\".\n\x0eGetBufferReply\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x0c\n\x04size\x18\x02 \x01(\r\"$\n\x14ReleaseBufferRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"$\n\x14RegisterTopicRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"^\n\x0ePublishRequest\x12\x12\n\ntopic_name\x18\x01 \x01(\t\x12\x13\n\x0b\x62uffer_name\x18\x02 \x01(\t\x12\x10\n\x08metadata\x18\x03 \x01(\x0c\x12\x11\n\ttimestamp\x18\x04 \x01(\x04\",\n\x16SubscriberCountRequest\x12\x12\n\ntopic_name\x18\x01 \x01(\t\"8\n\x14SubscriberCountReply\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x10\n\x08num_subs\x18\x02 \x01(\r\"k\n\x10SubscribeRequest\x12\x12\n\ntopic_name\x18\x01 \x01(\t\x12\x17\n\x0fsubscriber_name\x18\x02 \x01(\t\x12\x14\n\x0cmaxqueuesize\x18\x03 \x01(\r\x12\x14\n\x0c\x64\x65pendencies\x18\x04 \x03(\t\"K\n\x0bPullRequest\x12\x12\n\ntopic_name\x18\x01 \x01(\t\x12\x17\n\x0fsubscriber_name\x18\x02 \x01(\t\x12\x0f\n\x07timeout\x18\x03 \x01(\x05\"U\n\tPullReply\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x13\n\x0b\x62uffer_name\x18\x02 \x01(\t\x12\x10\n\x08metadata\x18\x03 \x01(\x0c\x12\x11\n\ttimestamp\x18\x04 \x01(\x04\x32\xb8\x03\n\x07\x42\x61tlShm\x12:\n\x0c\x43reateBuffer\x12\x14.CreateBufferRequest\x1a\x12.CreateBufferReply\"\x00\x12\x31\n\tGetBuffer\x12\x11.GetBufferRequest\x1a\x0f.GetBufferReply\"\x00\x12\x38\n\rReleaseBuffer\x12\x15.ReleaseBufferRequest\x1a\x0e.StandardReply\"\x00\x12\x38\n\rRegisterTopic\x12\x15.RegisterTopicRequest\x1a\x0e.StandardReply\"\x00\x12,\n\x07Publish\x12\x0f.PublishRequest\x1a\x0e.StandardReply\"\x00\x12\x46\n\x12GetSubscriberCount\x12\x17.SubscriberCountRequest\x1a\x15.SubscriberCountReply\"\x00\x12\x30\n\tSubscribe\x12\x11.SubscribeRequest\x1a\x0e.StandardReply\"\x00\x12\"\n\x04Pull\x12\x0c.PullRequest\x1a\n.PullReply\"\x00\x62\x06proto3'
 )
 
 
@@ -488,9 +488,9 @@ _PULLREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='block', full_name='PullRequest.block', index=2,
-      number=3, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
+      name='timeout', full_name='PullRequest.timeout', index=2,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -507,7 +507,7 @@ _PULLREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=614,
-  serialized_end=687,
+  serialized_end=689,
 )
 
 
@@ -559,8 +559,8 @@ _PULLREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=689,
-  serialized_end=774,
+  serialized_start=691,
+  serialized_end=776,
 )
 
 DESCRIPTOR.message_types_by_name['Empty'] = _EMPTY
@@ -686,8 +686,8 @@ _BATLSHM = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=777,
-  serialized_end=1217,
+  serialized_start=779,
+  serialized_end=1219,
   methods=[
   _descriptor.MethodDescriptor(
     name='CreateBuffer',

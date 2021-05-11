@@ -135,6 +135,7 @@ int32_t BatlShmClient::Subscribe(const string& topic_name, const string& subscri
 }
 
 int32_t BatlShmClient::Subscribe(const string& topic_name, const string& subscriber_name, vector<string>& dependencies, unsigned int maxQueueSize, bool wait) {
+std::cout << "maxQueueSize: " << maxQueueSize << std::endl;
     SubscribeRequest request;
     StandardReply reply;
     ClientContext context;
@@ -159,19 +160,19 @@ int32_t BatlShmClient::Subscribe(const string& topic_name, const string& subscri
 }
 
 int32_t BatlShmClient::Pull(const string& topic_name, const string& subscriber_name,
-        string& buffer_name, uint64_t timestamp, bool block) {
+        string& buffer_name, uint64_t& timestamp, int timeout) {
     string metadata;
-    return Pull(topic_name, subscriber_name, buffer_name, metadata, timestamp, block);
+    return Pull(topic_name, subscriber_name, buffer_name, metadata, timestamp, timeout);
 }
 
 int32_t BatlShmClient::Pull(const string& topic_name, const string& subscriber_name,
-        string& buffer_name, string& metadata, uint64_t timestamp, bool block) {
+        string& buffer_name, string& metadata, uint64_t& timestamp, int timeout) {
     PullRequest request;
     PullReply reply;
     ClientContext context;
     request.set_topic_name(topic_name);
     request.set_subscriber_name(subscriber_name);
-    request.set_block(block);
+    request.set_timeout(timeout);
     Status status = mStub->Pull(&context, request, &reply);
     if (status.ok()) {
         if (reply.result() == 0) {

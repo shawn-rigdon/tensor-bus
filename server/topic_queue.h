@@ -139,7 +139,7 @@ public:
 
     void post(TopicQueueItem& item);
     bool subscribe(string& subsriber_name, std::vector<string>& dependencies, unsigned int maxQueueSize);
-    bool pull(string& subsriber_name, TopicQueueItem& item, bool block=true);
+    bool pull(string& subsriber_name, TopicQueueItem& item, int timeout=-1);
     bool decIdx(string& subsriber_name);
     unsigned int clearProcessedPosts(string& subscriber_name);
 

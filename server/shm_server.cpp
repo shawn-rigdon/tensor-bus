@@ -121,21 +121,12 @@ public:
 std::cout << "Subscribe request from: " << request->subscriber_name() << std::endl;
         std::vector<string> dep;
         dep.reserve(request->dependencies_size());
-std::cout << __LINE__ << std::endl;
+std::cout << "dependencies size: " << request->dependencies_size() << std::endl;
         for (int i=0; i < request->dependencies_size(); ++i)
-{
-std::cout << __LINE__ << std::endl;
             dep.emplace_back(request->dependencies(i));
-std::cout << __LINE__ << std::endl;
-}
 
-std::cout << __LINE__ << std::endl;
-        if (!TopicManager::getInstance()->subscribe(request->topic_name(), request->subscriber_name(), dep, request->maxqueuesize()));
-{
-std::cout << __LINE__ << std::endl;
+        if (!TopicManager::getInstance()->subscribe(request->topic_name(), request->subscriber_name(), dep, request->maxqueuesize()))
             reply->set_result(-1);
-std::cout << __LINE__ << std::endl;
-}
 
         return Status::OK;
     }
@@ -144,10 +135,13 @@ std::cout << __LINE__ << std::endl;
             PullReply* reply) override {
         string topic = request->topic_name();
         string subscriber = request->subscriber_name();
-        bool block = request->block();
+        int timeout = request->timeout();
         TopicQueueItem item;
         reply->set_result(-1);
-        bool gotItem = TopicManager::getInstance()->pull(topic, subscriber, item, block);
+        // Clear processed queue items for this set of subscribers.
+        // This is done here to support client cancellation.
+        TopicManager::getInstance()->clearOldPosts(topic, subscriber);
+        bool gotItem = TopicManager::getInstance()->pull(topic, subscriber, item, timeout);
         if (!gotItem)
             return Status::OK;
 
@@ -156,10 +150,6 @@ std::cout << __LINE__ << std::endl;
             TopicManager::getInstance()->cancelPull(topic, subscriber);
             return Status::CANCELLED;
         }
-
-        // Got a topic item, so we need to release old items before returning.
-        // This is done here to support client cancellation.
-        TopicManager::getInstance()->clearOldPosts(topic, subscriber);
 
         if (!item.buffer_name.empty()) {
             reply->set_result(0);

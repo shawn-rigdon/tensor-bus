@@ -53,12 +53,19 @@ std::cout << __FILE__ << ": " << __LINE__ << std::endl;
     return it->second->subscribe(subscriber_name, dependencies, maxQueueSize);
 }
 
-bool TopicManager::pull(string topic_name,  string subscriber_name, TopicQueueItem& item, bool block) {
+bool TopicManager::pull(string topic_name,  string subscriber_name, TopicQueueItem& item, int timeout) {
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
     auto it = mActiveTopics.find(topic_name);
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
     if (it == mActiveTopics.end())
+{
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
         return false; // topic doesn't exist
+}
 
-    return it->second->pull(subscriber_name, item, block);
+std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+std::cout << "Pulling topic: " << topic_name << std::endl;
+    return it->second->pull(subscriber_name, item, timeout);
 }
 
 bool TopicManager::cancelPull(string topic_name,  string subscriber_name) {
