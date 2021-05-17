@@ -86,6 +86,7 @@ std::cout << "POST: releasing " << removeItem.buffer_name << std::endl;
             ShmManager::getInstance()->release(removeItem.buffer_name, q->mIndexMap.size());
             q->erase(removeIdx);
             q->push(item);
+            q->cv_idx.notify_all();
         }
     }
 }
@@ -131,7 +132,9 @@ std::cout << __FILE__ << ": " << __LINE__ << std::endl;
         if (timeout < 0)
 {
 std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+if (subscriber_name == "odin_submitter") std::cout << "ODIN SUBMITTER WAITING" << std::endl;
             q->cv_idx.wait(lock); // block until new data is available
+if (subscriber_name == "odin_submitter") std::cout << "ODIN SUBMITTER READY" << std::endl;
 std::cout << __FILE__ << ": " << __LINE__ << std::endl;
 }
         else {
