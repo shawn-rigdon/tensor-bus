@@ -32,7 +32,8 @@ bool Topic::subscribe(string& subscriber_name, std::vector<string>& dependencies
         std::cout << "Searching for dependency" << std::endl;
         string foundName;
         bool foundDependency = false;
-        while (!foundDependency) {
+        while (true) {
+            // TODO: this only handles 1 dependency correctly
             for (int i=0; i < dependencies.size(); ++i) {
                 if (mQueueMap.find(dependencies[i]) != mQueueMap.end()) {
                     foundDependency = true;
@@ -40,6 +41,10 @@ bool Topic::subscribe(string& subscriber_name, std::vector<string>& dependencies
                     break;
                 }
             }
+
+            if (foundDependency)
+                break;
+
             mCV.wait(lock);
         }
         dependencyMap[subscriber_name] = foundName; // point to a parent queue
@@ -55,13 +60,9 @@ bool Topic::subscribe(string& subscriber_name, std::vector<string>& dependencies
 
 void Topic::post(TopicQueueItem& item) {
     unique_lock<mutex> lock(mMutex);
-int loopCnt = 0;
     for (auto q_it = mQueueMap.begin(); q_it != mQueueMap.end(); ++q_it) {
-std::cout << "loopcnt: " << ++loopCnt << std::endl;
         shared_ptr<TopicQueue> q = q_it->second; 
-std::cout << "Subsriber (" << q_it->first << ") queue size: " << q->size() << std::endl;
         if (q->mMaxQueueSize == 0 || q->size() < q->mMaxQueueSize) {
-std::cout << "Posting buffer: " << item.buffer_name << std::endl;
             q->push(item);
             q->cv_idx.notify_all();
             continue;
@@ -77,17 +78,16 @@ std::cout << "Posting buffer: " << item.buffer_name << std::endl;
                 maxIdx = it->second;
         }
 
-std::cout << "max idx: " << maxIdx << std::endl;
         int removeIdx = maxIdx + 1;
         if (removeIdx < q->mMaxQueueSize) { // mMaxQueueSize = mQueue.size() if this block is executed
             TopicQueueItem removeItem;
             q->get_val_by_index(removeItem, removeIdx);
-std::cout << "POST: releasing " << removeItem.buffer_name << std::endl;
             ShmManager::getInstance()->release(removeItem.buffer_name, q->mIndexMap.size());
             q->erase(removeIdx);
             q->push(item);
             q->cv_idx.notify_all();
-        }
+        } else
+            ShmManager::getInstance()->release(item.buffer_name, q->mIndexMap.size());
     }
 }
 

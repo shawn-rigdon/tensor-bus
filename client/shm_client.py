@@ -64,7 +64,11 @@ class BatlShmClient:
         if depends is None:
             depends = []
 
-        request = batlshm_pb2.SubscribeRequest(topic_name=topic_name, subscriber_name=subscriber_name, maxqueuesize=maxQueueSize)
+        request = batlshm_pb2.SubscribeRequest(
+                topic_name=topic_name,
+                subscriber_name=subscriber_name,
+                maxqueuesize=maxQueueSize,
+                dependencies=depends)
         response = self.stub.Subscribe(request)
         while (wait and response.result == -1):
             response = self.stub.Subscribe(request)
