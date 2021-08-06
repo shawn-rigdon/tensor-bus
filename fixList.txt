@@ -16,3 +16,5 @@ DONE
 
 6. When a subscriber unexpectedly crashes, how will the system know the number of subscribers is decremented?
 	Possible solution: make derived publisher and subscriber from the client where the destructor unsubsribes
+
+7. Need to more efficiently handle waiting for register/subscribe methods
