@@ -10,6 +10,9 @@ endif()
 if (NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 endif()
+if (NOT DEFINED SHM_CLIENT_DIR)
+    set(SHM_CLIENT_DIR "${CMAKE_CURRENT_LIST_DIR}/client")
+endif()
 
 option(BUILD_SHARED_LIBS "build shared libraries" ON)
 
