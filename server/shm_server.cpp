@@ -18,7 +18,7 @@
 #include <sys/types.h>
 
 #include <batlshm.grpc.pb.h>
-#include "spdlog/spdlog.h"
+//#include "spdlog/spdlog.h"
 
 #include "shm_manager.h"
 #include "topic_manager.h"
@@ -187,7 +187,7 @@ void SignalHandler(int signum) {
 
 int main(int argc, char** argv) {
     std::signal(SIGINT, SignalHandler); // release memory if server is terminated
-    spdlog::set_level(spdlog::level::debug);
+    //spdlog::set_level(spdlog::level::debug);
     RunServer();
     return 0;
 }

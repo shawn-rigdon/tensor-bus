@@ -11,7 +11,7 @@
 #include <fcntl.h>
 #include <grpcpp/grpcpp.h>
 
-#include "spdlog/spdlog.h"
+//#include "spdlog/spdlog.h"
 
 
 using grpc::Channel;
