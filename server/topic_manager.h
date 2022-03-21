@@ -11,25 +11,27 @@
 
 class TopicManager {
 private:
-    static TopicManager* instance;
-    unordered_map< string, shared_ptr<Topic> > mActiveTopics;
+  static TopicManager *instance;
+  unordered_map<string, shared_ptr<Topic>> mActiveTopics;
 
-    TopicManager();
+  TopicManager();
 
 public:
-    static TopicManager* getInstance() {
-        if (!instance)
-            instance = new TopicManager();
-        return instance;
-    }
+  static TopicManager *getInstance() {
+    if (!instance)
+      instance = new TopicManager();
+    return instance;
+  }
 
-    bool addTopic(string& name);
-    bool publish(string topic_name, TopicQueueItem& item);
-    bool subscribe(string topic_name, string subscriber_name, std::vector<string>& dependencies, unsigned int maxQueueSize);
-    bool pull(string topic_name,  string subscriber_name, TopicQueueItem& item, int timeout=-1);
-    bool cancelPull(string topic_name, string subscriber_name);
-    bool clearOldPosts(string topic_name, string subscriber_name);
-    unsigned int getSubscriberCount(string topic_name);
+  bool addTopic(string &name);
+  bool publish(string topic_name, TopicQueueItem &item);
+  bool subscribe(string topic_name, string subscriber_name,
+                 std::vector<string> &dependencies, unsigned int maxQueueSize);
+  bool pull(string topic_name, string subscriber_name, TopicQueueItem &item,
+            int timeout = -1);
+  bool cancelPull(string topic_name, string subscriber_name);
+  bool clearOldPosts(string topic_name, string subscriber_name);
+  unsigned int getSubscriberCount(string topic_name);
 
-    ~TopicManager() {delete instance;}
+  ~TopicManager() { delete instance; }
 };
