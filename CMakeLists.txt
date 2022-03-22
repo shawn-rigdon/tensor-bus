@@ -1,4 +1,6 @@
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 3.10)
+set (CMAKE_CXX_STANDARD 14)
+
 project(shm_ipc)
 
 if (NOT DEFINED GENERATED_DIR)
@@ -23,6 +25,7 @@ if (NOT DEFINED GRPC_INSTALL_DIR)
 endif()
 add_subdirectory(${GRPC_INSTALL_DIR})
 
+find_package(spdlog REQUIRED)
 #set(GRPC_INSTALL_DIR "${CMAKE_SOURCE_DIR}/lib/grpc")
 #set(GRPC_INCLUDE_DIR "${GRPC_INSTALL_DIR}/include")
 #set(GRPC_LIB_DIR "${GRPC_INSTALL_DIR}/lib")

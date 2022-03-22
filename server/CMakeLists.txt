@@ -53,3 +53,4 @@ set_target_properties(shm_server PROPERTIES
     LINK_FLAGS ${LD_FLAGS}
     LINK_LIBRARIES ${LD_LIBS})
 add_dependencies(shm_server grpc)
+target_link_libraries(shm_server PRIVATE spdlog::spdlog)

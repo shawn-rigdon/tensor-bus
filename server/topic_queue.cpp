@@ -1,6 +1,6 @@
 #include "topic_queue.h"
 #include "shm_manager.h"
-
+#include "spdlog/spdlog.h"
 #include <iostream>
 
 TopicQueueItem::TopicQueueItem(const string &name, const string &metadata,
@@ -23,7 +23,6 @@ bool Topic::subscribe(string &subscriber_name,
     if (dependencyMap.find(subscriber_name) != dependencyMap.end())
       return true;
 
-    std::cout << "Searching for dependency" << std::endl;
     string foundName;
     bool foundDependency = false;
     while (true) {
@@ -94,25 +93,16 @@ void Topic::post(TopicQueueItem &item) {
 // is available by default. If block false immediately return when there is no
 // available data
 bool Topic::pull(string &subscriber_name, TopicQueueItem &item, int timeout) {
-  std::cout << "Pulling for subscriber: " << subscriber_name << std::endl;
-  std::cout << "timeout: " << timeout << std::endl;
   shared_ptr<TopicQueue> q;
   if (dependencyMap.find(subscriber_name) != dependencyMap.end()) {
-    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
     q = mQueueMap[dependencyMap[subscriber_name]];
-    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
   } else {
-    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
     q = mQueueMap[subscriber_name];
-    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
   }
 
   unique_lock<mutex> lock(q->mutex_idx);
-  std::cout << __FILE__ << ": " << __LINE__ << std::endl;
   auto it = q->mIndexMap.find(subscriber_name);
-  std::cout << __FILE__ << ": " << __LINE__ << std::endl;
   if (it == q->mIndexMap.end()) {
-    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
     // spdlog::error("Subscriber ID {} is not assigned to topic {}", id, mName);
     return false;
   }
@@ -120,30 +110,19 @@ bool Topic::pull(string &subscriber_name, TopicQueueItem &item, int timeout) {
   // If the current subscriber has processed all available queue messages,
   // it should wait for other subscribers to free up old messages and/or
   // the publisher to post new data
-  std::cout << __FILE__ << ": " << __LINE__ << std::endl;
   while (it->second >=
          q->size()) { // it->second retrieves current subscriber index
-    std::cout << __FILE__ << ": " << __LINE__ << std::endl;
     // spdlog::debug("Subscriber {} is waiting for new data", id);
-    if (timeout < 0) {
-      std::cout << __FILE__ << ": " << __LINE__ << std::endl;
-      if (subscriber_name == "odin_submitter")
-        std::cout << "ODIN SUBMITTER WAITING" << std::endl;
+    if (timeout < 0)
       q->cv_idx.wait(lock); // block until new data is available
-      if (subscriber_name == "odin_submitter")
-        std::cout << "ODIN SUBMITTER READY" << std::endl;
-      std::cout << __FILE__ << ": " << __LINE__ << std::endl;
-    } else {
-      std::cout << __FILE__ << ": " << __LINE__ << std::endl;
+    else {
       auto status =
           q->cv_idx.wait_until(lock, system_clock::now() + timeout * 1ms);
-      std::cout << __FILE__ << ": " << __LINE__ << std::endl;
       if (status == std::cv_status::timeout)
         return false; // return false if timeout
     }
   }
 
-  std::cout << __FILE__ << ": " << __LINE__ << std::endl;
   q->get_val_by_index(item, it->second++); // note the index is incremented
   return true;
 }
@@ -158,7 +137,6 @@ bool Topic::decIdx(string &subscriber_name) {
   unique_lock<mutex> lock(q->mutex_idx);
   auto it = q->mIndexMap.find(subscriber_name);
   if (it == q->mIndexMap.end()) {
-    // spdlog::error("Subscriber ID {} is not assigned to topic {}", id, mName);
     return false;
   }
 
