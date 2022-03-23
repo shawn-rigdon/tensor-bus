@@ -94,11 +94,12 @@ void Topic::post(TopicQueueItem &item) {
 // available data
 bool Topic::pull(string &subscriber_name, TopicQueueItem &item, int timeout) {
   shared_ptr<TopicQueue> q;
-  if (dependencyMap.find(subscriber_name) != dependencyMap.end()) {
+  if (dependencyMap.find(subscriber_name) != dependencyMap.end())
     q = mQueueMap[dependencyMap[subscriber_name]];
-  } else {
+  else if (mQueueMap.find(subscriber_name) != mQueueMap.end())
     q = mQueueMap[subscriber_name];
-  }
+  else
+    return false;
 
   unique_lock<mutex> lock(q->mutex_idx);
   auto it = q->mIndexMap.find(subscriber_name);
@@ -151,9 +152,10 @@ unsigned int Topic::clearProcessedPosts(string &subscriber_name) {
   shared_ptr<TopicQueue> q;
   if (dependencyMap.find(subscriber_name) != dependencyMap.end())
     q = mQueueMap[dependencyMap[subscriber_name]];
-  else
+  else if (mQueueMap.find(subscriber_name) != mQueueMap.end())
     q = mQueueMap[subscriber_name];
-
+  else
+    return 0;
   unique_lock<mutex> lock(q->mutex_idx);
   unsigned int minIdx = q->mMaxQueueSize;
   for (auto min_it = q->mIndexMap.begin(); min_it != q->mIndexMap.end();
