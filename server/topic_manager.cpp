@@ -21,7 +21,7 @@ bool TopicManager::publish(string topic_name, TopicQueueItem &item) {
     spdlog::error("topic:{} has not been registered", topic_name);
     return false;
   } else if (it->second->size() <= 0) {
-    spdlog::warn("topic:{} registered but no subscribers");
+    spdlog::warn("topic:{} registered but no subscribers", topic_name);
     return false;
   }
   it->second->post(item);
