@@ -131,7 +131,7 @@ int32_t ShmClient::GetSubscriberCount(const string& topic_name, unsigned int& nu
 
 int32_t ShmClient::Subscribe(const string& topic_name, const string& subscriber_name, unsigned int maxQueueSize, bool wait) {
     vector<string> v;
-    Subscribe(topic_name, subscriber_name, v, maxQueueSize, wait);
+    return Subscribe(topic_name, subscriber_name, v, maxQueueSize, wait);
 }
 
 int32_t ShmClient::Subscribe(const string& topic_name, const string& subscriber_name, vector<string>& dependencies, unsigned int maxQueueSize, bool wait) {
