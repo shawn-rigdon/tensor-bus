@@ -82,10 +82,7 @@ public:
                        StandardReply *reply) override {
     reply->set_result(0);
     string name = request->name();
-    if (!TopicManager::getInstance()->addTopic(name)) {
-      spdlog::error("register topic failed, topic:{} exists", request->name());
-      reply->set_result(-1); // topic already exists
-    }
+    TopicManager::getInstance()->addTopic(name);
     return Status::OK;
   }
 
@@ -185,12 +182,13 @@ public:
       reply->set_timestamp(item.timestamp);
       spdlog::debug("pulling buffer:{} from topic:{} by subscriber:{}",
                     item.buffer_name, topic, subscriber);
-    }
+    } else
+      spdlog::error("buffer_name is empty");
     return Status::OK;
   }
 };
 
-void RunServer(std::string port = "50052") {
+void RunServer(std::string port = "50051") {
   spdlog::info("launching shm_server on port:{}", port);
   std::string server_address("0.0.0.0:" + port);
   BatlShmServiceImpl service;
@@ -212,7 +210,7 @@ void SignalHandler(int signum) {
   exit(signum);
 }
 
-int main(int argc, char **argv) {  
+int main(int argc, char **argv) {
   std::signal(SIGINT, SignalHandler); // release memory if server is terminated
   spdlog::set_level(spdlog::level::info);
   RunServer();
