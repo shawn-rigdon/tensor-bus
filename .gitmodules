@@ -1,4 +1,4 @@
 [submodule "dependencies/grpc"]
 	path = dependencies/grpc
-	url = https://github.com/grpc/grpc.git
+	url = git@github.com:grpc/grpc.git
 	branch = v1.32.0
