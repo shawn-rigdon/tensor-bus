@@ -1,0 +1,6 @@
+name: grpc
+dependencies:
+  - python==3.7
+  - pip
+  - pip:
+    - grpcio-tools
