@@ -19,18 +19,18 @@ using grpc::ClientContext;
 using grpc::Status;
 using std::string;
 
-BatlShmClient::BatlShmClient(std::shared_ptr<Channel> channel) :
-    mStub(BatlShm::NewStub(channel))
+ShmClient::ShmClient(std::shared_ptr<Channel> channel) :
+    mStub(Shm::NewStub(channel))
 {
 }
 
-BatlShmClient::BatlShmClient(const string& ip, const string& port) {
+ShmClient::ShmClient(const string& ip, const string& port) {
     string addr = ip + ":" + port;
     auto channel = grpc::CreateChannel(addr, grpc::InsecureChannelCredentials());
-    mStub = BatlShm::NewStub(channel);
+    mStub = Shm::NewStub(channel);
 }
 
-int32_t BatlShmClient::CreateBuffer(string& name, int32_t size) {
+int32_t ShmClient::CreateBuffer(string& name, int32_t size) {
     CreateBufferRequest request;
     CreateBufferReply reply;
     ClientContext context;
@@ -45,7 +45,7 @@ int32_t BatlShmClient::CreateBuffer(string& name, int32_t size) {
     return reply.result();
 }
 
-int32_t BatlShmClient::GetBuffer(const string& name, int32_t& size) {
+int32_t ShmClient::GetBuffer(const string& name, int32_t& size) {
     GetBufferRequest request;
     GetBufferReply reply;
     ClientContext context;
@@ -60,7 +60,7 @@ int32_t BatlShmClient::GetBuffer(const string& name, int32_t& size) {
     return reply.result();
 }
 
-int32_t BatlShmClient::ReleaseBuffer(const string& name) {
+int32_t ShmClient::ReleaseBuffer(const string& name) {
     ReleaseBufferRequest request;
     StandardReply reply;
     ClientContext context;
@@ -74,7 +74,7 @@ int32_t BatlShmClient::ReleaseBuffer(const string& name) {
     return -1;
 }
 
-int32_t BatlShmClient::RegisterTopic(const string& name, bool wait) {
+int32_t ShmClient::RegisterTopic(const string& name, bool wait) {
     RegisterTopicRequest request;
     StandardReply reply;
     ClientContext context;
@@ -93,13 +93,13 @@ int32_t BatlShmClient::RegisterTopic(const string& name, bool wait) {
     return -1;
 }
 
-int32_t BatlShmClient::Publish(const string& topic_name,
+int32_t ShmClient::Publish(const string& topic_name,
         const string& buffer_name, uint64_t timestamp) {
     string metadata = "";
     return Publish(topic_name, buffer_name, metadata, timestamp);
 }
 
-int32_t BatlShmClient::Publish(const string& topic_name,
+int32_t ShmClient::Publish(const string& topic_name,
         const string& buffer_name, const string& metadata, uint64_t timestamp) {
     PublishRequest request;
     StandardReply reply;
@@ -117,7 +117,7 @@ int32_t BatlShmClient::Publish(const string& topic_name,
     return -1;
 }
 
-int32_t BatlShmClient::GetSubscriberCount(const string& topic_name, unsigned int& num_subs) {
+int32_t ShmClient::GetSubscriberCount(const string& topic_name, unsigned int& num_subs) {
     SubscriberCountRequest request;
     SubscriberCountReply reply;
     ClientContext context;
@@ -129,12 +129,12 @@ int32_t BatlShmClient::GetSubscriberCount(const string& topic_name, unsigned int
     return reply.result();
 }
 
-int32_t BatlShmClient::Subscribe(const string& topic_name, const string& subscriber_name, unsigned int maxQueueSize, bool wait) {
+int32_t ShmClient::Subscribe(const string& topic_name, const string& subscriber_name, unsigned int maxQueueSize, bool wait) {
     vector<string> v;
     Subscribe(topic_name, subscriber_name, v, maxQueueSize, wait);
 }
 
-int32_t BatlShmClient::Subscribe(const string& topic_name, const string& subscriber_name, vector<string>& dependencies, unsigned int maxQueueSize, bool wait) {
+int32_t ShmClient::Subscribe(const string& topic_name, const string& subscriber_name, vector<string>& dependencies, unsigned int maxQueueSize, bool wait) {
 std::cout << "maxQueueSize: " << maxQueueSize << std::endl;
     SubscribeRequest request;
     StandardReply reply;
@@ -159,13 +159,13 @@ std::cout << "maxQueueSize: " << maxQueueSize << std::endl;
     return -1;
 }
 
-int32_t BatlShmClient::Pull(const string& topic_name, const string& subscriber_name,
+int32_t ShmClient::Pull(const string& topic_name, const string& subscriber_name,
         string& buffer_name, uint64_t& timestamp, int timeout) {
     string metadata;
     return Pull(topic_name, subscriber_name, buffer_name, metadata, timestamp, timeout);
 }
 
-int32_t BatlShmClient::Pull(const string& topic_name, const string& subscriber_name,
+int32_t ShmClient::Pull(const string& topic_name, const string& subscriber_name,
         string& buffer_name, string& metadata, uint64_t& timestamp, int timeout) {
     PullRequest request;
     PullReply reply;

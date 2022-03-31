@@ -2,10 +2,10 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import batlshm_pb2 as batlshm__pb2
+import shm_server_pb2 as shm__server__pb2
 
 
-class BatlShmStub(object):
+class ShmStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -15,48 +15,48 @@ class BatlShmStub(object):
             channel: A grpc.Channel.
         """
         self.CreateBuffer = channel.unary_unary(
-                '/BatlShm/CreateBuffer',
-                request_serializer=batlshm__pb2.CreateBufferRequest.SerializeToString,
-                response_deserializer=batlshm__pb2.CreateBufferReply.FromString,
+                '/Shm/CreateBuffer',
+                request_serializer=shm__server__pb2.CreateBufferRequest.SerializeToString,
+                response_deserializer=shm__server__pb2.CreateBufferReply.FromString,
                 )
         self.GetBuffer = channel.unary_unary(
-                '/BatlShm/GetBuffer',
-                request_serializer=batlshm__pb2.GetBufferRequest.SerializeToString,
-                response_deserializer=batlshm__pb2.GetBufferReply.FromString,
+                '/Shm/GetBuffer',
+                request_serializer=shm__server__pb2.GetBufferRequest.SerializeToString,
+                response_deserializer=shm__server__pb2.GetBufferReply.FromString,
                 )
         self.ReleaseBuffer = channel.unary_unary(
-                '/BatlShm/ReleaseBuffer',
-                request_serializer=batlshm__pb2.ReleaseBufferRequest.SerializeToString,
-                response_deserializer=batlshm__pb2.StandardReply.FromString,
+                '/Shm/ReleaseBuffer',
+                request_serializer=shm__server__pb2.ReleaseBufferRequest.SerializeToString,
+                response_deserializer=shm__server__pb2.StandardReply.FromString,
                 )
         self.RegisterTopic = channel.unary_unary(
-                '/BatlShm/RegisterTopic',
-                request_serializer=batlshm__pb2.RegisterTopicRequest.SerializeToString,
-                response_deserializer=batlshm__pb2.StandardReply.FromString,
+                '/Shm/RegisterTopic',
+                request_serializer=shm__server__pb2.RegisterTopicRequest.SerializeToString,
+                response_deserializer=shm__server__pb2.StandardReply.FromString,
                 )
         self.Publish = channel.unary_unary(
-                '/BatlShm/Publish',
-                request_serializer=batlshm__pb2.PublishRequest.SerializeToString,
-                response_deserializer=batlshm__pb2.StandardReply.FromString,
+                '/Shm/Publish',
+                request_serializer=shm__server__pb2.PublishRequest.SerializeToString,
+                response_deserializer=shm__server__pb2.StandardReply.FromString,
                 )
         self.GetSubscriberCount = channel.unary_unary(
-                '/BatlShm/GetSubscriberCount',
-                request_serializer=batlshm__pb2.SubscriberCountRequest.SerializeToString,
-                response_deserializer=batlshm__pb2.SubscriberCountReply.FromString,
+                '/Shm/GetSubscriberCount',
+                request_serializer=shm__server__pb2.SubscriberCountRequest.SerializeToString,
+                response_deserializer=shm__server__pb2.SubscriberCountReply.FromString,
                 )
         self.Subscribe = channel.unary_unary(
-                '/BatlShm/Subscribe',
-                request_serializer=batlshm__pb2.SubscribeRequest.SerializeToString,
-                response_deserializer=batlshm__pb2.StandardReply.FromString,
+                '/Shm/Subscribe',
+                request_serializer=shm__server__pb2.SubscribeRequest.SerializeToString,
+                response_deserializer=shm__server__pb2.StandardReply.FromString,
                 )
         self.Pull = channel.unary_unary(
-                '/BatlShm/Pull',
-                request_serializer=batlshm__pb2.PullRequest.SerializeToString,
-                response_deserializer=batlshm__pb2.PullReply.FromString,
+                '/Shm/Pull',
+                request_serializer=shm__server__pb2.PullRequest.SerializeToString,
+                response_deserializer=shm__server__pb2.PullReply.FromString,
                 )
 
 
-class BatlShmServicer(object):
+class ShmServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def CreateBuffer(self, request, context):
@@ -112,56 +112,56 @@ class BatlShmServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_BatlShmServicer_to_server(servicer, server):
+def add_ShmServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'CreateBuffer': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateBuffer,
-                    request_deserializer=batlshm__pb2.CreateBufferRequest.FromString,
-                    response_serializer=batlshm__pb2.CreateBufferReply.SerializeToString,
+                    request_deserializer=shm__server__pb2.CreateBufferRequest.FromString,
+                    response_serializer=shm__server__pb2.CreateBufferReply.SerializeToString,
             ),
             'GetBuffer': grpc.unary_unary_rpc_method_handler(
                     servicer.GetBuffer,
-                    request_deserializer=batlshm__pb2.GetBufferRequest.FromString,
-                    response_serializer=batlshm__pb2.GetBufferReply.SerializeToString,
+                    request_deserializer=shm__server__pb2.GetBufferRequest.FromString,
+                    response_serializer=shm__server__pb2.GetBufferReply.SerializeToString,
             ),
             'ReleaseBuffer': grpc.unary_unary_rpc_method_handler(
                     servicer.ReleaseBuffer,
-                    request_deserializer=batlshm__pb2.ReleaseBufferRequest.FromString,
-                    response_serializer=batlshm__pb2.StandardReply.SerializeToString,
+                    request_deserializer=shm__server__pb2.ReleaseBufferRequest.FromString,
+                    response_serializer=shm__server__pb2.StandardReply.SerializeToString,
             ),
             'RegisterTopic': grpc.unary_unary_rpc_method_handler(
                     servicer.RegisterTopic,
-                    request_deserializer=batlshm__pb2.RegisterTopicRequest.FromString,
-                    response_serializer=batlshm__pb2.StandardReply.SerializeToString,
+                    request_deserializer=shm__server__pb2.RegisterTopicRequest.FromString,
+                    response_serializer=shm__server__pb2.StandardReply.SerializeToString,
             ),
             'Publish': grpc.unary_unary_rpc_method_handler(
                     servicer.Publish,
-                    request_deserializer=batlshm__pb2.PublishRequest.FromString,
-                    response_serializer=batlshm__pb2.StandardReply.SerializeToString,
+                    request_deserializer=shm__server__pb2.PublishRequest.FromString,
+                    response_serializer=shm__server__pb2.StandardReply.SerializeToString,
             ),
             'GetSubscriberCount': grpc.unary_unary_rpc_method_handler(
                     servicer.GetSubscriberCount,
-                    request_deserializer=batlshm__pb2.SubscriberCountRequest.FromString,
-                    response_serializer=batlshm__pb2.SubscriberCountReply.SerializeToString,
+                    request_deserializer=shm__server__pb2.SubscriberCountRequest.FromString,
+                    response_serializer=shm__server__pb2.SubscriberCountReply.SerializeToString,
             ),
             'Subscribe': grpc.unary_unary_rpc_method_handler(
                     servicer.Subscribe,
-                    request_deserializer=batlshm__pb2.SubscribeRequest.FromString,
-                    response_serializer=batlshm__pb2.StandardReply.SerializeToString,
+                    request_deserializer=shm__server__pb2.SubscribeRequest.FromString,
+                    response_serializer=shm__server__pb2.StandardReply.SerializeToString,
             ),
             'Pull': grpc.unary_unary_rpc_method_handler(
                     servicer.Pull,
-                    request_deserializer=batlshm__pb2.PullRequest.FromString,
-                    response_serializer=batlshm__pb2.PullReply.SerializeToString,
+                    request_deserializer=shm__server__pb2.PullRequest.FromString,
+                    response_serializer=shm__server__pb2.PullReply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'BatlShm', rpc_method_handlers)
+            'Shm', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class BatlShm(object):
+class Shm(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -175,9 +175,9 @@ class BatlShm(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/BatlShm/CreateBuffer',
-            batlshm__pb2.CreateBufferRequest.SerializeToString,
-            batlshm__pb2.CreateBufferReply.FromString,
+        return grpc.experimental.unary_unary(request, target, '/Shm/CreateBuffer',
+            shm__server__pb2.CreateBufferRequest.SerializeToString,
+            shm__server__pb2.CreateBufferReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -192,9 +192,9 @@ class BatlShm(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/BatlShm/GetBuffer',
-            batlshm__pb2.GetBufferRequest.SerializeToString,
-            batlshm__pb2.GetBufferReply.FromString,
+        return grpc.experimental.unary_unary(request, target, '/Shm/GetBuffer',
+            shm__server__pb2.GetBufferRequest.SerializeToString,
+            shm__server__pb2.GetBufferReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -209,9 +209,9 @@ class BatlShm(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/BatlShm/ReleaseBuffer',
-            batlshm__pb2.ReleaseBufferRequest.SerializeToString,
-            batlshm__pb2.StandardReply.FromString,
+        return grpc.experimental.unary_unary(request, target, '/Shm/ReleaseBuffer',
+            shm__server__pb2.ReleaseBufferRequest.SerializeToString,
+            shm__server__pb2.StandardReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -226,9 +226,9 @@ class BatlShm(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/BatlShm/RegisterTopic',
-            batlshm__pb2.RegisterTopicRequest.SerializeToString,
-            batlshm__pb2.StandardReply.FromString,
+        return grpc.experimental.unary_unary(request, target, '/Shm/RegisterTopic',
+            shm__server__pb2.RegisterTopicRequest.SerializeToString,
+            shm__server__pb2.StandardReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -243,9 +243,9 @@ class BatlShm(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/BatlShm/Publish',
-            batlshm__pb2.PublishRequest.SerializeToString,
-            batlshm__pb2.StandardReply.FromString,
+        return grpc.experimental.unary_unary(request, target, '/Shm/Publish',
+            shm__server__pb2.PublishRequest.SerializeToString,
+            shm__server__pb2.StandardReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -260,9 +260,9 @@ class BatlShm(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/BatlShm/GetSubscriberCount',
-            batlshm__pb2.SubscriberCountRequest.SerializeToString,
-            batlshm__pb2.SubscriberCountReply.FromString,
+        return grpc.experimental.unary_unary(request, target, '/Shm/GetSubscriberCount',
+            shm__server__pb2.SubscriberCountRequest.SerializeToString,
+            shm__server__pb2.SubscriberCountReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -277,9 +277,9 @@ class BatlShm(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/BatlShm/Subscribe',
-            batlshm__pb2.SubscribeRequest.SerializeToString,
-            batlshm__pb2.StandardReply.FromString,
+        return grpc.experimental.unary_unary(request, target, '/Shm/Subscribe',
+            shm__server__pb2.SubscribeRequest.SerializeToString,
+            shm__server__pb2.StandardReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -294,8 +294,8 @@ class BatlShm(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/BatlShm/Pull',
-            batlshm__pb2.PullRequest.SerializeToString,
-            batlshm__pb2.PullReply.FromString,
+        return grpc.experimental.unary_unary(request, target, '/Shm/Pull',
+            shm__server__pb2.PullRequest.SerializeToString,
+            shm__server__pb2.PullReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

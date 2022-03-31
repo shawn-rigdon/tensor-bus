@@ -3,26 +3,20 @@
 #include <string>
 #include <grpcpp/grpcpp.h>
 
-#include "batlshm.grpc.pb.h"
+#include "shm_server.grpc.pb.h"
 
 using grpc::Channel;
 using std::string;
 
 using namespace std;
 
-enum BatlShmErrorCodes {
-    OK = 0,
-    FAILED = -1,
-    TIMEOUT = -2
-};
-
-class BatlShmClient {
+class ShmClient {
 private:
-    unique_ptr<BatlShm::Stub> mStub;
+    unique_ptr<Shm::Stub> mStub;
 
 public:
-    BatlShmClient(shared_ptr<Channel> channel);
-    BatlShmClient(const string& ip="localhost", const string& port="50051");
+    ShmClient(shared_ptr<Channel> channel);
+    ShmClient(const string& ip="localhost", const string& port="50051");
 
     int32_t CreateBuffer(string& name, int32_t size);
     int32_t GetBuffer(const string& name, int32_t& size);
