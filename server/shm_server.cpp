@@ -3,11 +3,13 @@
 
 #include <atomic>
 #include <csignal>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <mutex> // For std::unique_lock
 #include <shared_mutex>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 
@@ -19,11 +21,13 @@
 
 #include "spdlog/spdlog.h"
 #include <batlshm.grpc.pb.h>
+#include <nlohmann/json.hpp>
 
 #include "shm_manager.h"
 #include "topic_manager.h"
 
 using namespace std;
+using json = nlohmann::json;
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
@@ -188,7 +192,7 @@ public:
   }
 };
 
-void RunServer(std::string port = "50051") {
+void RunServer(std::string port) {
   spdlog::info("launching shm_server on port:{}", port);
   std::string server_address("0.0.0.0:" + port);
   BatlShmServiceImpl service;
@@ -210,9 +214,54 @@ void SignalHandler(int signum) {
   exit(signum);
 }
 
+inline bool file_exists(const std::string &name) {
+  struct stat buffer;
+  return (stat(name.c_str(), &buffer) == 0);
+}
+
+template <typename PARAM_T>
+bool get_json_param(const json &j, const std::string &p_name, PARAM_T &var) {
+  try {
+    auto val = j.at(p_name).get<PARAM_T>();
+    var = val;
+    return true;
+  } catch (const std::exception &e) {
+    return false;
+  }
+}
+
 int main(int argc, char **argv) {
   std::signal(SIGINT, SignalHandler); // release memory if server is terminated
-  spdlog::set_level(spdlog::level::info);
-  RunServer();
+
+  json server_params;
+  std::string log_level = "error", port = "50051";
+  // Read the config file if provided to initialize the server
+  if (argc > 1) {
+    if (not file_exists(argv[1]))
+      throw std::invalid_argument("Application config file \"" +
+                                  std::string(argv[1]) + "\" does not exist.");
+    try {
+      std::ifstream ifs(argv[1]);
+      ifs >> server_params;
+    } catch (const std::exception &e) {
+      throw std::invalid_argument(
+          "Cannot read application parameters file: \"" + std::string(argv[1]) +
+          "\".");
+    }
+
+    // read arguments from config file
+    get_json_param(server_params, std::string("log_level"), log_level);
+    get_json_param(server_params, std::string("port"), port);
+  }
+
+  // set the log level from the config
+  if (!log_level.compare("error"))
+    spdlog::set_level(spdlog::level::err);
+  else if (!log_level.compare("info"))
+    spdlog::set_level(spdlog::level::info);
+  else
+    spdlog::set_level(spdlog::level::debug);
+  
+  RunServer(port);
   return 0;
 }

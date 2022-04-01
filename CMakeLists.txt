@@ -1,4 +1,5 @@
 cmake_minimum_required (VERSION 3.10)
+set(CMAKE_CXX_STANDARD 14)
 
 project(shm_ipc)
 
@@ -41,6 +42,11 @@ if (NOT spdlog_FOUND)
 else()
     MESSAGE(STATUS "looking for spdlog - found")
 endif()
+
+if (NOT DEFINED JSON_SRC_DIR)
+    set(JSON_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/dependencies/json")
+endif()
+add_subdirectory(${JSON_SRC_DIR})
 
 #set(GRPC_INSTALL_DIR "${CMAKE_SOURCE_DIR}/lib/grpc")
 #set(GRPC_INCLUDE_DIR "${GRPC_INSTALL_DIR}/include")
