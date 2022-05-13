@@ -1,8 +1,8 @@
 project(shm_client)
 
 # generated names
-set(PB_SRC "${GENERATED_DIR}/batlshm.pb.cc")
-set(GRPC_SRC "${GENERATED_DIR}/batlshm.grpc.pb.cc")
+set(PB_SRC "${GENERATED_DIR}/shm_server.pb.cc")
+set(GRPC_SRC "${GENERATED_DIR}/shm_server.grpc.pb.cc")
 set_source_files_properties(${PB_SRC} PROPERTIES GENERATED TRUE)
 set_source_files_properties(${GRPC_SRC} PROPERTIES GENERATED TRUE)
 

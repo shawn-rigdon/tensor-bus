@@ -17,7 +17,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <batlshm.grpc.pb.h>
+#include <shm_server.grpc.pb.h>
 //#include "spdlog/spdlog.h"
 
 #include "shm_manager.h"
@@ -29,7 +29,7 @@ using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::Status;
 
-class BatlShmServiceImpl final : public BatlShm::Service {
+class ShmServiceImpl final : public Shm::Service {
 private:
   mutex mMutex;
 
@@ -41,7 +41,7 @@ public:
 
     // create buffer name
     static std::atomic<unsigned int> count(0);
-    string name = "/batl_" + to_string(count++);
+    string name = "/shmsvr_" + to_string(count++);
 
     shared_ptr<ShmBuffer> buffer = make_shared<ShmBuffer>(name);
     if (!buffer->allocate(request->size()))
@@ -179,7 +179,7 @@ public:
 
 void RunServer() {
   std::string server_address("0.0.0.0:50051");
-  BatlShmServiceImpl service;
+  ShmServiceImpl service;
 
   ServerBuilder builder;
   // Listen on the given address without any authentication mechanism.
