@@ -1,5 +1,5 @@
 #include "shm_manager.h"
-
+#include "spdlog/spdlog.h"
 #include <fcntl.h>
 #include <iostream>
 #include <sys/mman.h>
@@ -17,7 +17,7 @@ ShmBuffer::~ShmBuffer() {
 
 bool ShmBuffer::allocate(size_t size) {
   if (mAllocated) {
-    cout << "shm buffer " << mName << " is already allocated" << endl;
+    spdlog::error("shm buffer with name:{} already allocated", mName);    
     return false;
   }
 
@@ -28,7 +28,7 @@ bool ShmBuffer::allocate(size_t size) {
       mAllocated = true;
       mSize = size;
     } else
-      cout << "Failed to allocate shm buffer " << mName << endl;
+      spdlog::error("failed to allocate shm bufffer");
 
     close(fd);
   }

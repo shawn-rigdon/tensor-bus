@@ -2,3 +2,11 @@
 	path = dependencies/grpc
 	url = git@github.com:grpc/grpc.git
 	branch = v1.32.0
+[submodule "dependencies/spdlog"]
+	path = dependencies/spdlog
+	url = https://github.com/gabime/spdlog.git
+	branch = v1.9.2
+[submodule "dependencies/json"]
+	path = dependencies/json
+	url = git@github.com:nlohmann/json.git
+	branch = v3.10.5

@@ -52,4 +52,5 @@ add_executable(shm_server ${SRC_LIST} ${PB_SRC} ${GRPC_SRC})
 set_target_properties(shm_server PROPERTIES
     LINK_FLAGS ${LD_FLAGS}
     LINK_LIBRARIES ${LD_LIBS})
-add_dependencies(shm_server grpc)
+add_dependencies(shm_server grpc spdlog::spdlog nlohmann_json::nlohmann_json)
+target_link_libraries(shm_server PRIVATE spdlog::spdlog nlohmann_json::nlohmann_json)

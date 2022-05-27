@@ -1,4 +1,6 @@
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 3.10)
+set(CMAKE_CXX_STANDARD 14)
+
 project(shm_ipc)
 
 if (NOT DEFINED GENERATED_DIR)
@@ -22,6 +24,29 @@ if (NOT DEFINED GRPC_INSTALL_DIR)
     set(PROTO_SRC "${GRPC_INSTALL_DIR}/third_party/protobuf/src")
 endif()
 add_subdirectory(${GRPC_INSTALL_DIR})
+
+# search for required spdlog version and build if not found
+if (NOT DEFINED SPDLOG_SRC_DIR)
+    set(SPDLOG_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/dependencies/spdlog")
+endif()
+include(${SPDLOG_SRC_DIR}/cmake/utils.cmake)
+set(CURRENT_DIR ${CMAKE_CURRENT_LIST_DIR})
+set(CMAKE_CURRENT_LIST_DIR ${SPDLOG_SRC_DIR})
+spdlog_extract_version()
+set(CMAKE_CURRENT_LIST_DIR ${CURRENT_DIR})
+MESSAGE(STATUS "looking for spdlog")
+find_package(spdlog ${SPDLOG_VERSION} QUIET)
+if (NOT spdlog_FOUND)
+    MESSAGE(STATUS "looking for spdlog - not found")
+    add_subdirectory(${SPDLOG_SRC_DIR})
+else()
+    MESSAGE(STATUS "looking for spdlog - found")
+endif()
+
+if (NOT DEFINED JSON_SRC_DIR)
+    set(JSON_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/dependencies/json")
+endif()
+add_subdirectory(${JSON_SRC_DIR})
 
 #set(GRPC_INSTALL_DIR "${CMAKE_SOURCE_DIR}/lib/grpc")
 #set(GRPC_INCLUDE_DIR "${GRPC_INSTALL_DIR}/include")

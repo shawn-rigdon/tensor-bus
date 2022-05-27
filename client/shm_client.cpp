@@ -11,7 +11,7 @@
 #include <fcntl.h>
 #include <grpcpp/grpcpp.h>
 
-//#include "spdlog/spdlog.h"
+#include "spdlog/spdlog.h"
 
 
 using grpc::Channel;
@@ -39,8 +39,8 @@ int32_t ShmClient::CreateBuffer(string& name, int32_t size) {
     if (status.ok() && !reply.name().empty())
         name = reply.name();
     else {
-//        spdlog::warn("CreateBuffer() fails with error code: {}, error message: {}",
-//                status.error_code(), status.error_message());
+        spdlog::error("CreateBuffer() failed with error code: {}, error message: {}",
+                status.error_code(), status.error_message());
     }
     return reply.result();
 }
@@ -54,8 +54,8 @@ int32_t ShmClient::GetBuffer(const string& name, int32_t& size) {
     if (status.ok() && reply.result() == 0)
         size = reply.size();
     else {
-//        spdlog::warn("GetBuffer() fails with error code: {}, error message: {}",
-//                status.error_code(), status.error_message());
+        spdlog::error("GetBuffer() failed with error code: {}, error message: {}",
+                status.error_code(), status.error_message());
     }
     return reply.result();
 }
@@ -69,8 +69,8 @@ int32_t ShmClient::ReleaseBuffer(const string& name) {
     if (status.ok())
         return reply.result();
 
-//    spdlog::warn("ReleaseBuffer() fails with error code: {}, error message: {}",
-//            status.error_code(), status.error_message());
+    spdlog::error("ReleaseBuffer() failed with error code: {}, error message: {}",
+            status.error_code(), status.error_message());
     return -1;
 }
 
@@ -88,8 +88,8 @@ int32_t ShmClient::RegisterTopic(const string& name, bool wait) {
     if (status.ok())
         return reply.result();
 
-//    spdlog::warn("RegisterTopic() fails with error code: {}, error message: {}",
-//            status.error_code(), status.error_message());
+    spdlog::error("RegisterTopic() failed with error code: {}, error message: {}",
+            status.error_code(), status.error_message());
     return -1;
 }
 
@@ -112,8 +112,8 @@ int32_t ShmClient::Publish(const string& topic_name,
     if (status.ok())
         return reply.result();
 
-//    spdlog::warn("Publish() fails with error code: {}, error message: {}",
-//            status.error_code(), status.error_message());
+    spdlog::error("Publish() failed with error code: {}, error message: {}",
+            status.error_code(), status.error_message());
     return -1;
 }
 
@@ -154,8 +154,8 @@ std::cout << "maxQueueSize: " << maxQueueSize << std::endl;
     if (status.ok())
         return reply.result();
 
-//    spdlog::warn("Subscribe() fails with error code: {}, error message: {}",
-//            status.error_code(), status.error_message());
+    spdlog::error("Subscribe() failed with error code: {}, error message: {}",
+            status.error_code(), status.error_message());
     return -1;
 }
 
@@ -182,11 +182,11 @@ int32_t ShmClient::Pull(const string& topic_name, const string& subscriber_name,
             return 0;
         }
 
-//        spdlog::info("Pull() timed out");
+        spdlog::info("Pull() timed out");
     }
 
-//    spdlog::warn("Pull() fails with error code: {}, error message: {}",
-//            status.error_code(), status.error_message());
+    spdlog::error("Pull() failed with error code: {}, error message: {}",
+            status.error_code(), status.error_message());
     return -1;
 }
 
