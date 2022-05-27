@@ -5,10 +5,10 @@ set(PROTOC "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/protoc")
 set(CPP_PLUGIN "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/grpc_cpp_plugin")
 
 # generated names
-set(PB_SRC "${GENERATED_DIR}/batlshm.pb.cc")
-set(PB_HDR "${GENERATED_DIR}/batlshm.pb.h")
-set(GRPC_SRC "${GENERATED_DIR}/batlshm.grpc.pb.cc")
-set(GRPC_HDR "${GENERATED_DIR}/batlshm.grpc.pb.h")
+set(PB_SRC "${GENERATED_DIR}/shm_server.pb.cc")
+set(PB_HDR "${GENERATED_DIR}/shm_server.pb.h")
+set(GRPC_SRC "${GENERATED_DIR}/shm_server.grpc.pb.cc")
+set(GRPC_HDR "${GENERATED_DIR}/shm_server.grpc.pb.h")
 set(GENERATED_FILES ${PB_SRC} ${PB_HDR} ${GRPC_SRC} ${GRPC_HDR})
 
 # cpp generated files
@@ -22,10 +22,10 @@ add_custom_command(
         --plugin=protoc-gen-grpc="${CPP_PLUGIN}"
         -I ${CMAKE_CURRENT_SOURCE_DIR}
         -I ${GRPC_INCLUDE_DIR}
-        batlshm.proto
-    DEPENDS batlshm.proto)
+        shm_server.proto
+    DEPENDS shm_server.proto)
 
-#set(GENERATED_PYTHON ${GENERATED_DIR}/batlshm_pb2_grpc.py ${GENERATED_DIR}/batlshm_pb2.py)
+#set(GENERATED_PYTHON ${GENERATED_DIR}/shm_server_pb2_grpc.py ${GENERATED_DIR}/shm_server_pb2.py)
 #add_custom_command(
 #    OUTPUT ${GENERATED_PYTHON}
 #    COMMAND mkdir
@@ -36,8 +36,8 @@ add_custom_command(
 #        -I ${GRPC_INCLUDE_DIR}
 #        --python_out=${GENERATED_DIR}
 #        --grpc_python_out=${GENERATED_DIR}
-#        batlshm.proto
-#    DEPENDS batlshm.proto)
+#        shm_server.proto
+#    DEPENDS shm_server.proto)
 #
 #add_custom_target(
 #    generate_python ALL

@@ -7,7 +7,7 @@ const std::string topic = "cpp_test_msgs";
 const int32_t msg_size = sizeof(int);
 const int msg_data = 5;
 
-void publisher(BatlShmClient *client) {
+void publisher(ShmClient *client) {
   // register topic
   client->RegisterTopic(topic);
 
@@ -34,7 +34,7 @@ void publisher(BatlShmClient *client) {
   client->Publish(topic, buffer_name, 0);
 }
 
-void subscriber(BatlShmClient *client) {
+void subscriber(ShmClient *client) {
   const std::string subscriber_name = "cpp_test_subscriber";
   client->Subscribe(topic, subscriber_name, 3);
 
@@ -71,12 +71,12 @@ void subscriber(BatlShmClient *client) {
 
 int main(int argc, char *argv[]) {
   // Get shm client
-  auto ShmClient = new BatlShmClient(grpc::CreateChannel(
+  auto client = new ShmClient(grpc::CreateChannel(
       "localhost:50051", grpc::InsecureChannelCredentials()));
-  std::thread publisher_thread(publisher, ShmClient);
+  std::thread publisher_thread(publisher, client);
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
-  std::thread subscriber_thread(subscriber, ShmClient);
+  std::thread subscriber_thread(subscriber, client);
   publisher_thread.join();
   subscriber_thread.join();
-  delete ShmClient;
+  delete client;
 }

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-service BatlShm {
+service Shm {
     // Shared memory operations
     rpc CreateBuffer(CreateBufferRequest) returns (CreateBufferReply) {}
     rpc GetBuffer(GetBufferRequest) returns (GetBufferReply) {}

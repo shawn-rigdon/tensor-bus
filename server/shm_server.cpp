@@ -20,8 +20,8 @@
 #include <unistd.h>
 
 #include "spdlog/spdlog.h"
-#include <batlshm.grpc.pb.h>
 #include <nlohmann/json.hpp>
+#include <shm_server.grpc.pb.h>
 
 #include "shm_manager.h"
 #include "topic_manager.h"
@@ -33,7 +33,7 @@ using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::Status;
 
-class BatlShmServiceImpl final : public BatlShm::Service {
+class ShmServiceImpl final : public Shm::Service {
 private:
   mutex mMutex;
 
@@ -44,8 +44,9 @@ public:
     reply->set_result(-1);
     // create buffer name
     static std::atomic<unsigned int> count(0);
-    string name = "/batl_" + to_string(count++);
+    string name = "/shmsvr_" + to_string(count++);
     spdlog::debug("allocating shm buffer {}", name);
+
     shared_ptr<ShmBuffer> buffer = make_shared<ShmBuffer>(name);
     if (!buffer->allocate(request->size())) {
       spdlog::error("shm buffer allocation failed for request size:{}",
@@ -195,7 +196,8 @@ public:
 void RunServer(std::string port) {
   spdlog::info("launching shm_server on port:{}", port);
   std::string server_address("0.0.0.0:" + port);
-  BatlShmServiceImpl service;
+  ShmServiceImpl service;
+
   ServerBuilder builder;
   // Listen on the given address without any authentication mechanism.
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
