@@ -3,6 +3,12 @@ set(CMAKE_CXX_STANDARD 14)
 
 project(shm_ipc)
 
+set(CONDA_ENV "grpc")
+
+set(BUILD_PYTHON TRUE)
+if (DEFINED NO_PYTHON_SHM)
+	set(BUILD_PYTHON FALSE)
+endif()
 if (NOT DEFINED GENERATED_DIR)
     set(GENERATED_DIR "${CMAKE_BINARY_DIR}/generated")
 endif()

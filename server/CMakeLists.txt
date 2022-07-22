@@ -25,23 +25,29 @@ add_custom_command(
         shm_server.proto
     DEPENDS shm_server.proto)
 
-#set(GENERATED_PYTHON ${GENERATED_DIR}/shm_server_pb2_grpc.py ${GENERATED_DIR}/shm_server_pb2.py)
-#add_custom_command(
-#    OUTPUT ${GENERATED_PYTHON}
-#    COMMAND mkdir
-#    ARGS -p "${GENERATED_DIR}"
-#    COMMAND python
-#    ARGS -m grpc.tools.protoc
-#        -I ${CMAKE_CURRENT_SOURCE_DIR}
-#        -I ${GRPC_INCLUDE_DIR}
-#        --python_out=${GENERATED_DIR}
-#        --grpc_python_out=${GENERATED_DIR}
-#        shm_server.proto
-#    DEPENDS shm_server.proto)
-#
-#add_custom_target(
-#    generate_python ALL
-#    DEPENDS ${GENERATED_PYTHON})
+if (DEFINED BUILD_PYTHON)
+	message(STATUS "Building Python proto stubs")
+	execute_process(
+		COMMAND which conda
+		OUTPUT_VARIABLE TMP # using to keep output from dumping to console
+		RESULT_VARIABLE RES)
+	if (NOT ${RES} EQUAL 0)
+		message(SEND_ERROR "You must install Conda on your system to build the Python stubs")
+	endif()
+	execute_process(
+		COMMAND conda env list
+		OUTPUT_VARIABLE ENVS)
+	if (NOT ${ENVS} MATCHES ${CONDA_ENV})
+		message(STATUS "Creating ${CONDA_ENV} conda environment")
+		set(ENV_FILE "${CMAKE_CURRENT_SOURCE_DIR}/environment.yml")
+		execute_process(COMMAND conda env update -f "${ENV_FILE}")
+	endif()
+	set(PYTHON_GENERATED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../generated")
+	execute_process( # build stubs
+		COMMAND mkdir -p ${PYTHON_GENERATED_DIR}
+		COMMAND conda run -n grpc python -m grpc.tools.protoc -I${CMAKE_CURRENT_SOURCE_DIR}
+		--python_out=${PYTHON_GENERATED_DIR} --grpc_python_out=${PYTHON_GENERATED_DIR} shm_server.proto)
+endif()
 
 set(SRC_LIST shm_server.cpp topic_manager.cpp topic_queue.cpp shm_manager.cpp)
 set(LD_FLAGS "-L${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
