@@ -43,10 +43,10 @@ endif()
 add_subdirectory(${JSON_SRC_DIR})
 
 #set(GRPC_INSTALL_DIR "${CMAKE_SOURCE_DIR}/lib/grpc")
-#set(GRPC_INCLUDE_DIR "${GRPC_INSTALL_DIR}/include")
+set(GRPC_INCLUDE_DIR "${GRPC_INSTALL_DIR}/include")
 #set(GRPC_LIB_DIR "${GRPC_INSTALL_DIR}/lib")
 
-set(GRPC_INCLUDE_DIR ${GRPC_INSTALL_DIR}/${gRPC_INSTALL_INCLUDEDIR})
+#set(GRPC_INCLUDE_DIR ${GRPC_INSTALL_DIR}/${gRPC_INSTALL_INCLUDEDIR})
 
 add_subdirectory(server)
 add_subdirectory(client)
