@@ -1,7 +1,7 @@
 [submodule "dependencies/grpc"]
 	path = dependencies/grpc
 	url = git@github.com:grpc/grpc.git
-	branch = v1.32.0
+	branch = v1.51.1
 [submodule "dependencies/spdlog"]
 	path = dependencies/spdlog
 	url = https://github.com/gabime/spdlog.git
