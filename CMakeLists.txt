@@ -45,6 +45,7 @@ add_subdirectory(${JSON_SRC_DIR})
 #set(GRPC_INSTALL_DIR "${CMAKE_SOURCE_DIR}/lib/grpc")
 set(GRPC_INCLUDE_DIR "${GRPC_INSTALL_DIR}/include")
 #set(GRPC_LIB_DIR "${GRPC_INSTALL_DIR}/lib")
+set(ABSEIL_CPP_DIR "${GRPC_INSTALL_DIR}/third_party/abseil-cpp")
 
 #set(GRPC_INCLUDE_DIR ${GRPC_INSTALL_DIR}/${gRPC_INSTALL_INCLUDEDIR})
 

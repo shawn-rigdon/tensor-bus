@@ -51,9 +51,9 @@ endif()
 
 set(SRC_LIST shm_server.cpp topic_manager.cpp topic_queue.cpp shm_manager.cpp)
 set(LD_FLAGS "-L${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
-set(LD_LIBS "-lprotobuf -lgrpc++ -lgrpc -lrt")
+set(LD_LIBS "-lprotobuf -lgrpc++ -lgrpc -lgpr -labsl_synchronization -lrt")
 
-include_directories(${GENERATED_DIR} ${GRPC_INCLUDE_DIR} ${PROTO_SRC})
+include_directories(${GENERATED_DIR} ${GRPC_INCLUDE_DIR} ${ABSEIL_CPP_DIR} ${PROTO_SRC})
 add_executable(shm_server ${SRC_LIST} ${PB_SRC} ${GRPC_SRC})
 set_target_properties(shm_server PROPERTIES
     LINK_FLAGS ${LD_FLAGS}
