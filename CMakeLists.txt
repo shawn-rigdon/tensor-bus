@@ -32,7 +32,7 @@ endif()
 add_subdirectory(${GRPC_INSTALL_DIR})
 
 # search for required spdlog version and build if not found
-if ((NOT DEFINED ${SEARCHED_SPDLOG}) OR (NOT ${SEARCHED_SPDLOG}))
+if ((NOT DEFINED SEARCHED_SPDLOG) OR (NOT ${SEARCHED_SPDLOG}))
 	include("${CMAKE_CURRENT_LIST_DIR}/cmake/find_spdlog.cmake")
 	find_spdlog(${CMAKE_CURRENT_LIST_DIR})
 endif()
