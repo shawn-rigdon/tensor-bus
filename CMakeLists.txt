@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.10)
+cmake_minimum_required (VERSION 3.15) # required by grpc 1.60.0
 set(CMAKE_CXX_STANDARD 14)
 
 project(shm_ipc)
@@ -9,27 +9,11 @@ set(BUILD_PYTHON TRUE)
 if (DEFINED NO_PYTHON_SHM)
 	set(BUILD_PYTHON FALSE)
 endif()
-if (NOT DEFINED GENERATED_DIR)
-    set(GENERATED_DIR "${CMAKE_BINARY_DIR}/generated")
-endif()
-if (NOT DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-endif()
-if (NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-endif()
 if (NOT DEFINED SHM_CLIENT_DIR)
     set(SHM_CLIENT_DIR "${CMAKE_CURRENT_LIST_DIR}/client")
 endif()
 
 option(BUILD_SHARED_LIBS "build shared libraries" ON)
-
-#add_subdirectory("${CMAKE_SOURCE_DIR}/dependencies/grpc")
-if (NOT DEFINED GRPC_INSTALL_DIR)
-    set(GRPC_INSTALL_DIR "${CMAKE_CURRENT_LIST_DIR}/dependencies/grpc")
-    set(PROTO_SRC "${GRPC_INSTALL_DIR}/third_party/protobuf/src")
-endif()
-add_subdirectory(${GRPC_INSTALL_DIR})
 
 # search for required spdlog version and build if not found
 if ((NOT DEFINED SEARCHED_SPDLOG) OR (NOT ${SEARCHED_SPDLOG}))
@@ -42,12 +26,65 @@ if (NOT DEFINED JSON_SRC_DIR)
 endif()
 add_subdirectory(${JSON_SRC_DIR})
 
-#set(GRPC_INSTALL_DIR "${CMAKE_SOURCE_DIR}/lib/grpc")
-set(GRPC_INCLUDE_DIR "${GRPC_INSTALL_DIR}/include")
-#set(GRPC_LIB_DIR "${GRPC_INSTALL_DIR}/lib")
-set(ABSEIL_CPP_DIR "${GRPC_INSTALL_DIR}/third_party/abseil-cpp")
+# integrate grpc
+include(FetchContent)
+set(ABSL_PROPAGATE_CXX_STD ON)
+set(ABSL_ENABLE_INSTALL ON)
+FetchContent_Declare(
+	gRPC
+	GIT_REPOSITORY https://github.com/grpc/grpc
+	GIT_TAG        v1.60.0
+)
+set(FETCHCONTENT_QUIET OFF)
+FetchContent_MakeAvailable(gRPC)
 
-#set(GRPC_INCLUDE_DIR ${GRPC_INSTALL_DIR}/${gRPC_INSTALL_INCLUDEDIR})
+
+# generate proto stubs. refer to official cmake_protobuf_generate.md for explanation
+include(${grpc_SOURCE_DIR}/third_party/protobuf/cmake/protobuf-generate.cmake) #TODO: find a better way to include this
+add_library(proto-objects OBJECT "${CMAKE_CURRENT_LIST_DIR}/server/shm_server.proto")
+set_property(TARGET proto-objects PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(proto-objects PUBLIC libprotobuf grpc++)
+
+set(PROTO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(PYTHON_PROTO_BINARY_DIR "${CMAKE_CURRENT_LIST_DIR}/generated")
+set(PROTO_IMPORT_DIRS "${CMAKE_CURRENT_LIST_DIR}/server")
+file(MAKE_DIRECTORY ${PROTO_BINARY_DIR} ${PYTHON_PROTO_BINARY_DIR})
+
+target_include_directories(proto-objects PUBLIC "$<BUILD_INTERFACE:${PROTO_BINARY_DIR}>")
+
+# generate C++ stubs
+protobuf_generate(
+    TARGET proto-objects
+    IMPORT_DIRS ${PROTO_IMPORT_DIRS}
+    PROTOC_OUT_DIR "${PROTO_BINARY_DIR}"
+)
+
+protobuf_generate(
+    TARGET proto-objects
+    LANGUAGE grpc
+    GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc
+    PLUGIN "protoc-gen-grpc=\$<TARGET_FILE:grpc_cpp_plugin>"
+    IMPORT_DIRS ${PROTO_IMPORT_DIRS}
+    PROTOC_OUT_DIR "${PROTO_BINARY_DIR}"
+)
+
+# generate Python stubs
+protobuf_generate(
+    TARGET proto-objects
+	LANGUAGE python
+    IMPORT_DIRS ${PROTO_IMPORT_DIRS}
+	PROTOC_OUT_DIR ${PYTHON_PROTO_BINARY_DIR}
+)
+
+protobuf_generate(
+    TARGET proto-objects
+    LANGUAGE grpc
+    GENERATE_EXTENSIONS _pb2_grpc.py
+    PLUGIN "protoc-gen-grpc=\$<TARGET_FILE:grpc_python_plugin>"
+    IMPORT_DIRS ${PROTO_IMPORT_DIRS}
+    PROTOC_OUT_DIR ${PYTHON_PROTO_BINARY_DIR}
+)
+
 
 add_subdirectory(server)
 add_subdirectory(client)

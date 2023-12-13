@@ -4,3 +4,5 @@ dependencies:
   - pip
   - pip:
     - grpcio-tools
+    - posix-ipc
+    - numpy
