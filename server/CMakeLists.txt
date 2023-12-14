@@ -11,11 +11,6 @@ set(LD_LIBS
 	spdlog::spdlog
 	nlohmann_json::nlohmann_json
 	proto-objects
-	libprotobuf
-	grpc++
-	grpc
-	gpr
-	rt
 )
 
 add_executable(shm_server ${SRC_LIST})
