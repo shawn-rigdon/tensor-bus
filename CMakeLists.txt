@@ -15,19 +15,20 @@ endif()
 
 option(BUILD_SHARED_LIBS "build shared libraries" ON)
 
-# search for required spdlog version and build if not found
-if ((NOT DEFINED SEARCHED_SPDLOG) OR (NOT ${SEARCHED_SPDLOG}))
-	include("${CMAKE_CURRENT_LIST_DIR}/cmake/find_spdlog.cmake")
-	find_spdlog(${CMAKE_CURRENT_LIST_DIR})
-endif()
-
-if (NOT DEFINED JSON_SRC_DIR)
-    set(JSON_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/dependencies/json")
-endif()
-add_subdirectory(${JSON_SRC_DIR})
-
-# integrate grpc
+# fetch dependencies
 include(FetchContent)
+set(JSON_Install ON)
+set(SPDLOG_INSTALL ON)
+FetchContent_Declare(
+    json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.11.3
+)
+FetchContent_Declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG v1.12.0
+)
 set(ABSL_PROPAGATE_CXX_STD ON)
 set(ABSL_ENABLE_INSTALL ON)
 FetchContent_Declare(
@@ -36,7 +37,7 @@ FetchContent_Declare(
 	GIT_TAG        v1.60.0
 )
 set(FETCHCONTENT_QUIET OFF)
-FetchContent_MakeAvailable(gRPC)
+FetchContent_MakeAvailable(json spdlog gRPC)
 
 
 # generate proto stubs. refer to official cmake_protobuf_generate.md for explanation
