@@ -87,7 +87,8 @@ public:
                        StandardReply *reply) override {
     reply->set_result(0);
     string name = request->name();
-    TopicManager::getInstance()->addTopic(name);
+    bool dropMsgs = request->dropmsgs();
+    TopicManager::getInstance()->addTopic(name, dropMsgs);
     return Status::OK;
   }
 

@@ -10,7 +10,7 @@ TopicQueueItem::TopicQueueItem(const string &name, const string &metadata,
 TopicQueue::TopicQueue(unsigned int maxQueueSize)
     : mMaxQueueSize(maxQueueSize) {}
 
-Topic::Topic(string name) : mName(name) {}
+Topic::Topic(string name, bool dropMsgs) : mName(name), mDropMsgs(dropMsgs) {}
 
 // If the subscriber is not already subscribed to the topic
 // the given subscriber name is set to the oldest position in the queue.
@@ -53,9 +53,25 @@ bool Topic::subscribe(string &subscriber_name,
 }
 
 void Topic::post(TopicQueueItem &item) {
+  // create separate vector for topic queue ptrs since blocking could cause
+  // subscribe function to wait forever if a subsriber is restarted while we
+  // are blocking here
+  std::vector<shared_ptr<TopicQueue>> queues;
+  queues.reserve(mQueueMap.size());
   unique_lock<mutex> lock(mMutex);
-  for (auto q_it = mQueueMap.begin(); q_it != mQueueMap.end(); ++q_it) {
-    shared_ptr<TopicQueue> q = q_it->second;
+  for (auto q_it = mQueueMap.begin(); q_it != mQueueMap.end(); ++q_it)
+    queues.emplace_back(q_it->second);
+  lock.unlock();
+
+  for (auto q : queues) {
+    // block for each queue if it is full. This will throttle the topic
+    // to the speed of the slowest subscriber, but is necessary to avoid
+    // consuming all system memory. Therefore the developer should be sure
+    // blocking is necessary.
+    while (!mDropMsgs && q->mMaxQueueSize > 0 && q->size() >= q->mMaxQueueSize) {
+      unique_lock<mutex> qlock(q->mutex_idx);
+      q->cv_post_block.wait(qlock);
+    }
     if (q->mMaxQueueSize == 0 || q->size() < q->mMaxQueueSize) {
       q->push(item);
       q->cv_idx.notify_all();
@@ -171,6 +187,7 @@ unsigned int Topic::clearProcessedPosts(string &subscriber_name) {
     if (q->pop(old_item)) {
       // ShmManager::getInstance()->release(old_item.buffer_name);
       // released_count++;
+      q->cv_post_block.notify_one();
       popped_count++;
     }
   }

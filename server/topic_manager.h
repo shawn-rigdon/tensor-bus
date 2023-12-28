@@ -23,7 +23,7 @@ public:
     return instance;
   }
 
-  bool addTopic(string &name);
+  bool addTopic(string &name, bool dropMsgs=false);
   bool publish(string topic_name, TopicQueueItem &item);
   bool subscribe(string topic_name, string subscriber_name,
                  std::vector<string> &dependencies, unsigned int maxQueueSize);

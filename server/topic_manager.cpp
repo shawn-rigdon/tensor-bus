@@ -6,10 +6,10 @@ TopicManager *TopicManager::instance = nullptr;
 
 TopicManager::TopicManager() { mActiveTopics.reserve(10); }
 
-bool TopicManager::addTopic(string &name) {
+bool TopicManager::addTopic(string &name, bool dropMsgs) {
   if (mActiveTopics.find(name) == mActiveTopics.end()) {
     spdlog::info("adding topic:{}", name);
-    mActiveTopics[name] = make_shared<Topic>(name);
+    mActiveTopics[name] = make_shared<Topic>(name, dropMsgs);
   } else
     spdlog::debug("topic:{} already exists");
   return true;

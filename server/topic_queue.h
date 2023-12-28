@@ -112,7 +112,7 @@ class TopicQueue : public ThreadSafeQueue<TopicQueueItem> {
 public:
   unsigned int mMaxQueueSize;
   mutex mutex_idx;
-  condition_variable cv_idx;
+  condition_variable cv_idx, cv_post_block;
   unordered_map<string, unsigned int> mIndexMap;
 
   TopicQueue(const unsigned int maxQueueSize);
@@ -125,13 +125,14 @@ public:
 class Topic {
 private:
   string mName;
+  bool mDropMsgs;
   mutex mMutex;
   condition_variable mCV;
   unordered_map<string, shared_ptr<TopicQueue>> mQueueMap;
   unordered_map<string, string> dependencyMap;
 
 public:
-  Topic(string name);
+  Topic(string name, bool dropMsgs=true);
   virtual ~Topic() {}
 
   void post(TopicQueueItem &item);

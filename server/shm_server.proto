@@ -48,6 +48,7 @@ message ReleaseBufferRequest {
 
 message RegisterTopicRequest {
     string name = 1;
+    bool dropmsgs = 2;
 }
 
 message PublishRequest {

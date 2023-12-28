@@ -38,8 +38,8 @@ class ShmClient:
         response = self.stub.ReleaseBuffer(request)
         return response.result
 
-    def RegisterTopic(self, name, wait=False):
-        request = shm_server_pb2.RegisterTopicRequest(name=name)
+    def RegisterTopic(self, name, drop_msgs=True, wait=False):
+        request = shm_server_pb2.RegisterTopicRequest(name=name, dropmsgs=drop_msgs)
         response = self.stub.RegisterTopic(request)
         while (wait and response.result == -1):
             response = self.stub.RegisterTopic(request)

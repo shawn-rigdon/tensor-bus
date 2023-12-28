@@ -74,11 +74,12 @@ int32_t ShmClient::ReleaseBuffer(const string& name) {
     return -1;
 }
 
-int32_t ShmClient::RegisterTopic(const string& name, bool wait) {
+int32_t ShmClient::RegisterTopic(const string& name, bool dropMsgs, bool wait) {
     RegisterTopicRequest request;
     StandardReply reply;
     ClientContext context;
     request.set_name(name);
+    request.set_dropmsgs(dropMsgs);
     Status status = mStub->RegisterTopic(&context, request, &reply);
     while (wait && (!status.ok() || reply.result() == -1)) {
         ClientContext newcontext; // for some reason a new context var is needed.
