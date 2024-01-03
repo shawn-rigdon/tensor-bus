@@ -3,12 +3,127 @@
 #include "spdlog/spdlog.h"
 #include <iostream>
 
+using namespace std::chrono;
+using namespace std::chrono_literals;
+
 TopicQueueItem::TopicQueueItem(const string &name, const string &metadata,
                                const uint64_t ts)
     : buffer_name(name), metadata(metadata), timestamp(ts) {}
 
 TopicQueue::TopicQueue(unsigned int maxQueueSize)
-    : mMaxQueueSize(maxQueueSize) {}
+    : mMaxSize(maxQueueSize) {}
+
+// If the queue is full, replace the oldest data not processed by a subscriber
+void TopicQueue::push_replace_oldest(TopicQueueItem &item, bool drop) {
+    // If dropping msgs, block for each queue if it is full. This will
+    // throttle the topic to the speed of the slowest subscriber, but
+    // is necessary to avoid consuming all system memory. Therefore the
+    // developer should be sure blocking is necessary.
+    unique_lock lock(mMutex);
+    while (!drop && isFull())
+      mCV.wait(lock);
+
+    if (!isFull()) {
+      mQueue.push_back(item);
+      mCV.notify_all();
+      return;
+    }
+
+    // Remove the oldest queue element not currently being processed by
+    // a subscriber. This keeps the topic up to date.
+    // Oldest free topic is at the max subscriber index + 1
+    unsigned int maxIdx = 0;
+    for (auto it = mIndexMap.begin(); it != mIndexMap.end(); it++) {
+      if (it->second > maxIdx)
+        maxIdx = it->second;
+    }
+
+    unsigned int removeIdx = maxIdx + 1;
+    if (removeIdx >= size()) {
+      ShmManager::getInstance()->release(item.buffer_name, mIndexMap.size());
+      return;
+    }
+
+    TopicQueueItem removeItem = mQueue[removeIdx];
+    mQueue.erase(mQueue.begin() + removeIdx);
+    mQueue.push_back(item);
+    mCV.notify_all();
+    ShmManager::getInstance()->release(removeItem.buffer_name, mIndexMap.size());
+}
+
+bool TopicQueue::pull(string subscriber_name, TopicQueueItem &item, int timeout) {
+  unique_lock lock(mMutex);
+  auto it = mIndexMap.find(subscriber_name);
+  if (it == mIndexMap.end()) {
+    // spdlog::error("Subscriber ID {} is not assigned to topic {}", id, mName);
+    return false;
+  }
+  int idx = it->second++; // Note: idx is incremented
+
+  // If the current subscriber has processed all available queue messages,
+  // it should wait for other subscribers to free up old messages and/or
+  // the publisher to post new data
+  while (idx >= size()) { // it->second retrieves current subscriber index
+    // spdlog::debug("Subscriber {} is waiting for new data", id);
+    if (timeout < 0) {
+        mCV.wait(lock);
+    }
+    else {
+        mCV.wait(lock);
+      auto status = mCV.wait_until(
+              lock, system_clock::now() + timeout * 1ms);
+        mCV.wait(lock);
+      if (status == std::cv_status::timeout)
+        return false; // return false if timeout
+    }
+  }
+
+  item = mQueue[idx];
+  return true;
+}
+
+bool TopicQueue::decrement_index(string subscriber_name) {
+  lock_guard lock(mMutex);
+  auto it = mIndexMap.find(subscriber_name);
+  if (it == mIndexMap.end()) {
+    return false;
+  }
+
+  it->second--;
+  return true;
+}
+
+unsigned int TopicQueue::clear_old() {
+  lock_guard lock(mMutex);
+  unsigned int minIdx = mMaxSize;
+  for (auto it = mIndexMap.begin(); it != mIndexMap.end(); it++) {
+    if (it->second < minIdx)
+      minIdx = it->second;
+  }
+
+  unsigned int popped_count = 0;
+  for (int i = 0; i < minIdx; ++i) {
+    if (mQueue.empty())
+      break;
+
+    mQueue.pop_front();
+    popped_count++;
+    mCV.notify_one();
+  }
+
+  // Need to decrement subscriber indices after removing old elements
+  if (popped_count > 0) {
+    for (auto it = mIndexMap.begin(); it != mIndexMap.end(); it++)
+      it->second = (it->second > popped_count) ? it->second - popped_count : 0;
+  }
+
+  return popped_count;
+}
+
+void TopicQueue::init_index(string subscriber_name) {
+  lock_guard lock(mMutex);
+  mIndexMap[subscriber_name] = 0;
+}
 
 Topic::Topic(string name, bool dropMsgs) : mName(name), mDropMsgs(dropMsgs) {}
 
@@ -18,7 +133,7 @@ Topic::Topic(string name, bool dropMsgs) : mName(name), mDropMsgs(dropMsgs) {}
 bool Topic::subscribe(string &subscriber_name,
                       std::vector<string> &dependencies,
                       unsigned int maxQueueSize) {
-  unique_lock<mutex> lock(mMutex);
+  unique_lock<shared_mutex> lock(mMutex);
   if (dependencies.size() > 0) {
     if (dependencyMap.find(subscriber_name) != dependencyMap.end())
       return true;
@@ -38,68 +153,24 @@ bool Topic::subscribe(string &subscriber_name,
       if (foundDependency)
         break;
 
-      mCV.wait(lock);
+      mCV_sub.wait(lock);
     }
     dependencyMap[subscriber_name] = foundName; // point to a parent queue
-    mQueueMap[foundName]->mIndexMap[subscriber_name] =
-        0; // init position index in parent queue
+    mQueueMap[foundName]->init_index(subscriber_name);
   } else if (mQueueMap.find(subscriber_name) == mQueueMap.end()) {
     mQueueMap[subscriber_name] = make_shared<TopicQueue>(maxQueueSize);
-    mQueueMap[subscriber_name]->mIndexMap[subscriber_name] = 0;
-    mCV.notify_all();
+    mQueueMap[subscriber_name]->init_index(subscriber_name);
+    mCV_sub.notify_all();
   }
 
   return true;
 }
 
 void Topic::post(TopicQueueItem &item) {
-  // create separate vector for topic queue ptrs since blocking could cause
-  // subscribe function to wait forever if a subsriber is restarted while we
-  // are blocking here
-  std::vector<shared_ptr<TopicQueue>> queues;
-  queues.reserve(mQueueMap.size());
-  unique_lock<mutex> lock(mMutex);
-  for (auto q_it = mQueueMap.begin(); q_it != mQueueMap.end(); ++q_it)
-    queues.emplace_back(q_it->second);
-  lock.unlock();
-
-  for (auto q : queues) {
-    // block for each queue if it is full. This will throttle the topic
-    // to the speed of the slowest subscriber, but is necessary to avoid
-    // consuming all system memory. Therefore the developer should be sure
-    // blocking is necessary.
-    while (!mDropMsgs && q->mMaxQueueSize > 0 && q->size() >= q->mMaxQueueSize) {
-      unique_lock<mutex> qlock(q->mutex_idx);
-      q->cv_post_block.wait(qlock);
-    }
-    if (q->mMaxQueueSize == 0 || q->size() < q->mMaxQueueSize) {
-      q->push(item);
-      q->cv_idx.notify_all();
-      continue;
-    }
-
-    // Remove the oldest queue element not currently being processed by
-    // a subscriber. This keeps the topic up to date.
-    // Oldest free topic is at the max subscriber index + 1
-
-    unsigned int maxIdx = 0;
-    for (auto it = q->mIndexMap.begin(); it != q->mIndexMap.end(); it++) {
-      if (it->second > maxIdx)
-        maxIdx = it->second;
-    }
-
-    int removeIdx = maxIdx + 1;
-    if (removeIdx < q->mMaxQueueSize) { // mMaxQueueSize = mQueue.size() if this
-                                        // block is executed
-      TopicQueueItem removeItem;
-      q->get_val_by_index(removeItem, removeIdx);
-      ShmManager::getInstance()->release(removeItem.buffer_name,
-                                         q->mIndexMap.size());
-      q->erase(removeIdx);
-      q->push(item);
-      q->cv_idx.notify_all();
-    } else
-      ShmManager::getInstance()->release(item.buffer_name, q->mIndexMap.size());
+  shared_lock lock(mMutex); // need read access to mQueueMap
+  for (auto q_it = mQueueMap.begin(); q_it != mQueueMap.end(); ++q_it) {
+    shared_ptr<TopicQueue> q = q_it->second;
+    q->push_replace_oldest(item, mDropMsgs);
   }
 }
 
@@ -109,6 +180,7 @@ void Topic::post(TopicQueueItem &item) {
 // is available by default. If block false immediately return when there is no
 // available data
 bool Topic::pull(string &subscriber_name, TopicQueueItem &item, int timeout) {
+  shared_lock lock(mMutex); // need read access to mQueueMap and dependencyMap
   shared_ptr<TopicQueue> q;
   if (dependencyMap.find(subscriber_name) != dependencyMap.end())
     q = mQueueMap[dependencyMap[subscriber_name]];
@@ -117,54 +189,25 @@ bool Topic::pull(string &subscriber_name, TopicQueueItem &item, int timeout) {
   else
     return false;
 
-  unique_lock<mutex> lock(q->mutex_idx);
-  auto it = q->mIndexMap.find(subscriber_name);
-  if (it == q->mIndexMap.end()) {
-    // spdlog::error("Subscriber ID {} is not assigned to topic {}", id, mName);
-    return false;
-  }
-
-  // If the current subscriber has processed all available queue messages,
-  // it should wait for other subscribers to free up old messages and/or
-  // the publisher to post new data
-  while (it->second >=
-         q->size()) { // it->second retrieves current subscriber index
-    // spdlog::debug("Subscriber {} is waiting for new data", id);
-    if (timeout < 0)
-      q->cv_idx.wait(lock); // block until new data is available
-    else {
-      auto status =
-          q->cv_idx.wait_until(lock, system_clock::now() + timeout * 1ms);
-      if (status == std::cv_status::timeout)
-        return false; // return false if timeout
-    }
-  }
-
-  q->get_val_by_index(item, it->second++); // note the index is incremented
-  return true;
+  return q->pull(subscriber_name, item, timeout);
 }
 
 bool Topic::decIdx(string &subscriber_name) {
+  shared_lock lock(mMutex);
   shared_ptr<TopicQueue> q;
   if (dependencyMap.find(subscriber_name) != dependencyMap.end())
     q = mQueueMap[dependencyMap[subscriber_name]];
   else
     q = mQueueMap[subscriber_name];
 
-  unique_lock<mutex> lock(q->mutex_idx);
-  auto it = q->mIndexMap.find(subscriber_name);
-  if (it == q->mIndexMap.end()) {
-    return false;
-  }
-
-  it->second--;
-  return true;
+  return q->decrement_index(subscriber_name);
 }
 
 // Check if low index queue items have been processed by all subscribers. Pop
 // all queue elements that are no longer needed. This will be done by the
 // slowest subscriber.
 unsigned int Topic::clearProcessedPosts(string &subscriber_name) {
+  shared_lock lock(mMutex);
   shared_ptr<TopicQueue> q;
   if (dependencyMap.find(subscriber_name) != dependencyMap.end())
     q = mQueueMap[dependencyMap[subscriber_name]];
@@ -172,39 +215,8 @@ unsigned int Topic::clearProcessedPosts(string &subscriber_name) {
     q = mQueueMap[subscriber_name];
   else
     return 0;
-  unique_lock<mutex> lock(q->mutex_idx);
-  unsigned int minIdx = q->mMaxQueueSize;
-  for (auto min_it = q->mIndexMap.begin(); min_it != q->mIndexMap.end();
-       min_it++) {
-    if (min_it->second < minIdx)
-      minIdx = min_it->second;
-  }
 
-  TopicQueueItem old_item;
-  // unsigned int released_count = 0;
-  unsigned int popped_count = 0;
-  for (int i = 0; i < minIdx; i++) {
-    if (q->pop(old_item)) {
-      // ShmManager::getInstance()->release(old_item.buffer_name);
-      // released_count++;
-      q->cv_post_block.notify_one();
-      popped_count++;
-    }
-  }
-
-  // Need to decrement subscriber indices after removing old elements
-  // if (released_count > 0) {
-  if (popped_count > 0) {
-    for (auto dec_it = q->mIndexMap.begin(); dec_it != q->mIndexMap.end();
-         dec_it++)
-      // dec_it->second = (dec_it->second > released_count) ? dec_it->second -
-      // released_count : 0;
-      dec_it->second =
-          (dec_it->second > popped_count) ? dec_it->second - popped_count : 0;
-  }
-
-  // return released_count;
-  return popped_count;
+  return q->clear_old();
 }
 
 // Questions:
