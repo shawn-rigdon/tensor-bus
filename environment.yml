@@ -1,8 +1,9 @@
-name: grpc
+name: tensor-bus
+channels:
+  - conda-forge
 dependencies:
-  - python==3.7
-  - pip
+  - python==3.12
+  - conda-forge::grpcio-tools=1.71.0
+  - conda-forge::numpy=2.2.3
   - pip:
-    - grpcio-tools
-    - posix-ipc
-    - numpy
+    - posix-ipc==1.1.1
