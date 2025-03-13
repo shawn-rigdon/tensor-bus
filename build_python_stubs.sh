@@ -16,8 +16,8 @@ if ! which conda &> /dev/null; then
 	error "Cannot generate python stubs. Conda has not been installed."
 fi
 
-proto_path=`dirname $0`
-env_name="grpc"
+proto_path="`dirname $0`/server"
+env_name="tensor-bus"
 # check if the gen_path has been given as an argument
 if [ $# -gt 0 ] && [ ! -z "${1}" ]; then
 	gen_path="${1}"
@@ -40,4 +40,4 @@ if [[ "${found_env}" == "n" ]]; then
 fi
 
 mkdir -p ${gen_path}
-conda run -n grpc python -m grpc.tools.protoc -I${proto_path} --python_out=${gen_path} --grpc_python_out=${gen_path} shm_server.proto
+conda run -n tensor-bus python -m grpc.tools.protoc -I${proto_path} --python_out=${gen_path} --grpc_python_out=${gen_path} shm_server.proto
